@@ -1,0 +1,19 @@
+
+
+services:
+  api:
+    build:
+      context: ./api/.
+      dockerfile: Dockerfile
+    ports:
+      - "9000:8080"
+    restart: always
+    container_name: "api_container"
+  public:
+    build:
+      context: ./public/.
+      dockerfile: Dockerfile
+    ports:
+      - "9001:3000"
+    restart: always
+    container_name: "public_container"
