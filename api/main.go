@@ -4,24 +4,29 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
+	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
+	gorillaHandlers "github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Trainer struct {
-	Name string
-	Age  int
-	City string
+func MiddlewareContentTypeSet(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
+		rw.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(rw, h)
+	})
 }
 
 func main() {
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
 
 	mongoUri := os.Getenv("MONGODB_URI")
 	clientOptions := options.Client().ApplyURI("mongodb://" + mongoUri + "/?connect=direct")
@@ -39,84 +44,42 @@ func main() {
 	}
 	fmt.Println("Connected to MongoDB!")
 
-	collection := client.Database("myFirstDatabase").Collection("trainers")
-	fmt.Println(collection.Name())
-	ash := Trainer{"Ash", 10, "Pallet Town"}
-	misty := Trainer{"Misty", 10, "Cerulean City"}
-	brock := Trainer{"Brock", 15, "Pewter City"}
+	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	logger := log.New(os.Stdout, "[api] ", log.LstdFlags)
 
-	insertResult, err := collection.InsertOne(context.TODO(), ash)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
+	router := mux.NewRouter()
+	router.Use(MiddlewareContentTypeSet)
+	database := client.Database("skyriders")
 
-	trainers := []interface{}{misty, brock}
+	LoadServices(logger, router, database)
 
-	insertManyResult, err := collection.InsertMany(context.TODO(), trainers)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
-
-	filter := bson.D{{"name", "Ash"}}
-
-	update := bson.D{
-		{"$inc", bson.D{
-			{"age", 1},
-		}},
+	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
+	server := http.Server{
+		Addr:         ":" + port,
+		Handler:      cors(router),
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
 	}
 
-	updateResult, err := collection.UpdateOne(context.TODO(), filter, update)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Matched %v documents and updated %v documents.\n", updateResult.MatchedCount, updateResult.ModifiedCount)
-
-	var result Trainer
-
-	err = collection.FindOne(context.TODO(), filter).Decode(&result)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("Found a single document: %+v\n", result)
-
-	findOptions := options.Find()
-	findOptions.SetLimit(2)
-
-	var results []*Trainer
-
-	cur, err := collection.Find(context.TODO(), bson.D{{}}, findOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for cur.Next(context.TODO()) {
-		var elem Trainer
-		err := cur.Decode(&elem)
+	logger.Println("Server listening on port", port)
+	go func() {
+		err := server.ListenAndServe()
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 		}
+	}()
 
-		results = append(results, &elem)
+	sigCh := make(chan os.Signal)
+	signal.Notify(sigCh, os.Interrupt)
+	signal.Notify(sigCh, os.Kill)
+
+	sig := <-sigCh
+	logger.Println("Received terminate, graceful shutdown", sig)
+
+	if server.Shutdown(timeoutContext) != nil {
+		logger.Fatal("Cannot gracefully shutdown...")
 	}
-
-	if err := cur.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	cur.Close(context.TODO())
-
-	fmt.Printf("Found multiple documents (array of pointers): %+v\n", results)
-
-	<-quit
-
-	err = client.Disconnect(context.TODO())
-
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Println("Connection to MongoDB closed.")
-	}
+	logger.Println("Server stopped")
 }

@@ -4,12 +4,11 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY . .
-RUN go build -o static_server
-CMD ["./mongoDBExample"]
+RUN go build -o api
 
 
 FROM alpine
 WORKDIR /app
-COPY --from=build_container /app/static_server /usr/bin
+COPY --from=build_container /app/api /usr/bin
 EXPOSE 8080
-ENTRYPOINT ["static_server"]
+ENTRYPOINT ["api"]
