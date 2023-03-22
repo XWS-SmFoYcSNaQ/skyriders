@@ -5,9 +5,42 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+html {
+  overflow: scroll;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 0;  
+  background: transparent; 
+}
+
+
+:root {
+  --primary-color: #1976d2;
+  --primary-light: #5DADE2;
+  --primary-dark: #1A120B;
+  --primary-text: #F6F1F1;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
+}
+
+a.active .MuiListItem-root {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.MuiCardHeader-title {
+  font-size: 2.5rem !important;
 }
