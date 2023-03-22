@@ -19,7 +19,7 @@ import { Outlet, NavLink  } from 'react-router-dom';
 const drawerWidth = 240;
 
 interface NavItem {
-  route: string;
+  route: string;  
   text: string;
 }
 
@@ -76,8 +76,8 @@ const MainLayout = () => {
         {/* Upper nav items */}
         <List>
           {upperNavItems.map((navItem, index) => (
-            <NavLink to={navItem.route}>
-              <ListItem key={index} disablePadding>
+            <NavLink to={navItem.route} key={navItem.route}>
+              <ListItem disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
                     {index % 2 === 0 ? <HomeIcon /> : <MailIcon />}
@@ -92,8 +92,8 @@ const MainLayout = () => {
         {/* Lower nav items */}
         <List>
           {lowerNavItems.map((navItem, index) => (
-            <NavLink to={navItem.route} >
-              <ListItem key={index} disablePadding>
+            <NavLink to={navItem.route} key={navItem.route} >
+              <ListItem disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
                     {index % 2 === 0 ? <LoginIcon /> : <HowToRegIcon />}

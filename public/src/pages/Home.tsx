@@ -49,7 +49,10 @@ const Home = () => {
           backgroundColor: '#bcbec9'
         }}>
           <Grid item xs={12} md={6} lg={4} sx={{ justifyContent: 'center'}}>
-            <Card variant='outlined' className={styles['home-card']}>
+            <Card variant='outlined' sx={{ 
+              backgroundColor: 'var(--primary-color)',
+              color: 'var(--primary-text)',
+              maxHeight: '280px'}}>
               <CardHeader title='Flights'/>
               <CardContent>
                 <Typography variant='body1'>
@@ -72,7 +75,10 @@ const Home = () => {
             </Box>
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
-            <Card variant='outlined' className={styles['home-card']}>
+            <Card variant='outlined' sx={{ 
+              backgroundColor: 'var(--primary-color)',
+              color: 'var(--primary-text)',
+              maxHeight: '280px'}}>
               <CardHeader title='Tickets'/>
               <CardContent>
                 <Typography variant='body1'>
