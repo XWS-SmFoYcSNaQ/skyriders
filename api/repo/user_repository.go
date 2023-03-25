@@ -62,7 +62,6 @@ func (ur *UserRepo) GetByEmail(email string) (*model.User, error) {
 		return nil, err
 	}
 
-	ur.logger.Println(user.Customer.Firstname)
 	return &user, nil
 }
 
