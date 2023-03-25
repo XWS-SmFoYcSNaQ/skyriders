@@ -2,6 +2,8 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"log"
+	"os"
 	"time"
 )
 
@@ -23,11 +25,17 @@ func LoadConfig(path string) (config Config, err error) {
 
 	viper.AutomaticEnv()
 
+	logger := log.New(os.Stdout, "[api] ", log.LstdFlags)
 	err = viper.ReadInConfig()
 	if err != nil {
+		logger.Println(err.Error())
 		return
 	}
 
 	err = viper.Unmarshal(&config)
-	return
+	if err != nil {
+		logger.Println(err.Error())
+		return
+	}
+	return config, err
 }

@@ -7,16 +7,18 @@ import (
 	"Skyriders/utils"
 	"context"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
 type AuthController struct {
+	logger  *log.Logger
 	service *service.UserService
 	ctx     context.Context
 }
 
-func NewAuthController(service *service.UserService, ctx context.Context) *AuthController {
-	return &AuthController{service: service, ctx: ctx}
+func NewAuthController(logger *log.Logger, service *service.UserService, ctx context.Context) *AuthController {
+	return &AuthController{logger: logger, service: service, ctx: ctx}
 }
 
 func (ac *AuthController) Register(ctx *gin.Context) {
@@ -75,6 +77,8 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 
 	config, _ := config2.LoadConfig(".")
 
+	ac.logger.Println(config.RefreshTokenPrivateKey)
+
 	accessToken, err := utils.CreateToken(config.AccessTokenExpiresIn, user.ID, config.AccessTokenPrivateKey)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
@@ -94,5 +98,49 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 	ctx.SetCookie("logged_in", "true", config.AccessTokenMaxAge*60,
 		"/", "localhost", false, false)
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken})
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken}) //delete accessToken from the response after debugging
+}
+
+func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
+
+	cookie, err := ctx.Cookie("refresh_token")
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "could not refresh access token"})
+		return
+	}
+
+	config, _ := config2.LoadConfig(".")
+
+	sub, err := utils.ValidateToken(cookie, config.RefreshTokenPublicKey)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": err.Error()})
+		return
+	}
+
+	user, err := ac.service.GetById(sub.(string))
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "the user belonging to this token no logger exists"})
+		return
+	}
+
+	accessToken, err := utils.CreateToken(config.AccessTokenExpiresIn, user.ID, config.AccessTokenPrivateKey)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.SetCookie("access_token", accessToken, config.AccessTokenMaxAge*60,
+		"/", "localhost", false, true)
+	ctx.SetCookie("logged_in", "true", config.AccessTokenMaxAge*60,
+		"/", "localhost", false, false)
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken}) //delete accessToken from the response after debugging
+}
+
+func (ac *AuthController) Logout(ctx *gin.Context) {
+	ctx.SetCookie("access_token", "", -1, "/", "localhost", false, true)
+	ctx.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
+	ctx.SetCookie("logged_in", "", -1, "/", "localhost", false, true)
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
 }

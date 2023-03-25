@@ -31,6 +31,14 @@ func (service *UserService) Insert(user *model.User) error {
 	return service.repo.Insert(user)
 }
 
-func (service *UserService) GetByEmail(email string) (model.User, error) {
+func (service *UserService) GetByEmail(email string) (*model.User, error) {
 	return service.repo.GetByEmail(email)
+}
+
+func (service *UserService) GetById(id string) (*model.User, error) {
+	return service.repo.GetById(id)
+}
+
+func (service *UserService) GetAll() (model.Users, error) {
+	return service.repo.GetAll()
 }
