@@ -20,5 +20,6 @@ func (ar *AuthRoute) AuthRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/auth")
 	router.POST("/register", ar.authController.Register)
 	router.POST("/login", ar.authController.Login)
+	router.GET("/refresh", ar.authController.RefreshAccessToken)
 	router.GET("/logout", middleware.DeserializeUser(ar.authService), ar.authController.Logout)
 }
