@@ -3,30 +3,24 @@ package controller
 import (
 	"Skyriders/repo"
 	"Skyriders/service"
-	"github.com/gorilla/mux"
+	"context"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 )
 
 type UserController struct {
 	logger  *log.Logger
-	router  *mux.Router
 	repo    *repo.UserRepo
 	service *service.UserService
+	ctx     context.Context
 }
 
-func CreateUserController(l *log.Logger, r *mux.Router, repo *repo.UserRepo, s *service.UserService) *UserController {
-	uc := UserController{l, r, repo, s}
-	uc.registerRoutes()
-	return &uc
+func CreateUserController(logger *log.Logger, repo *repo.UserRepo, service *service.UserService, ctx context.Context) *UserController {
+	return &UserController{logger: logger, repo: repo, service: service, ctx: ctx}
 }
 
-func (uc *UserController) registerRoutes() {
-	getRouter := uc.router.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", uc.getAllUsers)
-}
-
-func (uc *UserController) getAllUsers(rw http.ResponseWriter, h *http.Request) {
+func (uc *UserController) GetAllUsers(ctx *gin.Context) {
 	users, err := uc.repo.GetAll()
 
 	if err != nil {
@@ -37,10 +31,11 @@ func (uc *UserController) getAllUsers(rw http.ResponseWriter, h *http.Request) {
 		return
 	}
 
-	err = users.ToJSON(rw)
 	if err != nil {
-		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
-		uc.logger.Fatal("Unable to convert to json :", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get users"})
+		uc.logger.Fatal("Unable to get users:", err)
 		return
 	}
+
+	ctx.JSON(http.StatusOK, users)
 }
