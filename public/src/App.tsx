@@ -12,6 +12,7 @@ import {
 import Error from './pages/Error';
 import Home from './pages/Home';
 import Mainlayout from './components/layout/Main';
+import Flights from './pages/Flights';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,11 @@ const router = createBrowserRouter([
         index: true,
         element: <Home/>,
       },
+      {
+        index: true,
+        path: "flights",
+        element: <Flights/>
+      }
     ]
   },
 ]);
