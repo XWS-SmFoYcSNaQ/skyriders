@@ -32,8 +32,8 @@ const FlightList = ({ data, onDelete }: Props) => {
                 <TableCell component="th" scope="row">{d.placeDestination}</TableCell>
                 <TableCell align="right">{d.placeSource}</TableCell>
                 <TableCell align="right">{d.ticketPrice}</TableCell>
-                <TableCell align="right">{d.dateSource}</TableCell>
-                <TableCell align="right">{d.dateDestination}</TableCell>
+                <TableCell align="right">{new Date(d.dateSource).toLocaleString()}</TableCell>
+                <TableCell align="right">{new Date(d.dateDestination).toLocaleString()}</TableCell>
                 <TableCell align="right">{d.totalTickets}</TableCell>
                 <TableCell align="right">{d.boughtTickets}</TableCell>
                 <TableCell align="right">

@@ -56,7 +56,7 @@ func (fc *FlightController) PostFlight(ctx *gin.Context) {
 		return
 	}
 
-	err := fc.repo.Insert(flightObj)
+	err := fc.repo.Create(flightObj)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
