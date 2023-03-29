@@ -30,6 +30,10 @@ func MiddlewareContentTypeSet() gin.HandlerFunc {
 
 func initDb() {
 	mongoUri := os.Getenv("MONGODB_URI")
+
+	if mongoUri == "" {
+		mongoUri = "localhost:9100"
+	}
 	clientOptions := options.Client().ApplyURI("mongodb://" + mongoUri + "/?connect=direct")
 
 	var err error
@@ -50,7 +54,7 @@ func initDb() {
 func main() {
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-		port = "8080"
+		port = "9000"
 	}
 
 	initDb()
