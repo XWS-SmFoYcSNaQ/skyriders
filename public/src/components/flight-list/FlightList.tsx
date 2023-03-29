@@ -7,7 +7,10 @@ interface Props {
 }
 
 const FlightList = ({ data, onDelete }: Props) => {
-  
+  if(!data || data.length === 0) {
+    return <div>Nema nista prika</div>
+  }
+
   return (
     <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">

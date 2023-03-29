@@ -29,13 +29,8 @@ func (fc *FlightController) GetAllFlights(ctx *gin.Context) {
 	flights, err := fc.repo.GetAll()
 
 	if err != nil {
-		fc.logger.Print("Database exception: ", err)
-	}
-
-	if flights == nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
 		fc.logger.Fatal("Unable to get flights:", err)
-		return
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
 	}
 
 	ctx.JSON(http.StatusOK, flights)
