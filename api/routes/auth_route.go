@@ -10,18 +10,17 @@ import (
 
 type AuthRoute struct {
 	authController controller.AuthController
-	authService    *service.UserService
 }
 
-func NewAuthRoute(authController controller.AuthController, authService *service.UserService) *AuthRoute {
-	return &AuthRoute{authController: authController, authService: authService}
+func NewAuthRoute(authController controller.AuthController) *AuthRoute {
+	return &AuthRoute{authController: authController}
 }
 
-func (ar *AuthRoute) AuthRoute(rg *gin.RouterGroup, enforcer *casbin.Enforcer) {
+func (ar *AuthRoute) AuthRoute(rg *gin.RouterGroup, authService *service.UserService, enforcer *casbin.Enforcer) {
 	router := rg.Group("/auth")
 	router.POST("/register", middleware.Anonymous(), ar.authController.Register(enforcer))
 	router.POST("/login", middleware.Anonymous(), ar.authController.Login)
 	router.GET("/refresh", ar.authController.RefreshAccessToken)
-	router.GET("/logout", middleware.DeserializeUser(ar.authService),
+	router.GET("/logout", middleware.DeserializeUser(authService),
 		middleware.Authorize("logout", "GET", enforcer), ar.authController.Logout)
 }

@@ -5,11 +5,14 @@ import (
 	"Skyriders/model"
 	"Skyriders/service"
 	"Skyriders/utils"
+	"Skyriders/validator"
 	"fmt"
-	"github.com/casbin/casbin/v2"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/casbin/casbin/v2"
+	"github.com/gin-gonic/gin"
 )
 
 type AuthController struct {
@@ -27,6 +30,26 @@ func (ac *AuthController) Register(enforcer *casbin.Enforcer) gin.HandlerFunc {
 
 		if err := ctx.ShouldBindJSON(&credentials); err != nil {
 			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if !validator.IsValidEmail(credentials.Email) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Email address in invalid format"})
+			return
+		}
+
+		if !validator.IsValidPhoneNumber(credentials.Phone) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid phone number"})
+			return
+		}
+
+		if credentials.DateOfBirth.After(time.Now()) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Date of birth should be in past"})
+			return
+		}
+
+		if ac.service.IsEmailExists(credentials.Email) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
 			return
 		}
 
