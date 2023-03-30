@@ -5,20 +5,19 @@ import (
 	"Skyriders/model"
 	"Skyriders/service"
 	"Skyriders/utils"
-	"context"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AuthController struct {
 	logger  *log.Logger
 	service *service.UserService
-	ctx     context.Context
 }
 
-func NewAuthController(logger *log.Logger, service *service.UserService, ctx context.Context) *AuthController {
-	return &AuthController{logger: logger, service: service, ctx: ctx}
+func NewAuthController(logger *log.Logger, service *service.UserService) *AuthController {
+	return &AuthController{logger: logger, service: service}
 }
 
 func (ac *AuthController) Register(ctx *gin.Context) {

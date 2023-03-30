@@ -3,21 +3,20 @@ package controller
 import (
 	"Skyriders/repo"
 	"Skyriders/service"
-	"context"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
 	logger  *log.Logger
 	repo    *repo.UserRepo
 	service *service.UserService
-	ctx     context.Context
 }
 
-func CreateUserController(logger *log.Logger, repo *repo.UserRepo, service *service.UserService, ctx context.Context) *UserController {
-	return &UserController{logger: logger, repo: repo, service: service, ctx: ctx}
+func CreateUserController(logger *log.Logger, repo *repo.UserRepo, service *service.UserService) *UserController {
+	return &UserController{logger: logger, repo: repo, service: service}
 }
 
 func (uc *UserController) GetAllUsers(ctx *gin.Context) {

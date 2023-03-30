@@ -3,20 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
-	ctx    context.Context
 	client *mongo.Client
 )
 
@@ -80,7 +80,7 @@ func main() {
 
 	routerGroup := router.Group("/api")
 
-	InitializeAllControllers(routerGroup, logger, database, ctx)
+	InitializeAllControllers(routerGroup, logger, database)
 
 	go func() {
 		err := server.ListenAndServe()

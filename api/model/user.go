@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
-	"time"
 )
 
 type Role int
@@ -50,11 +49,11 @@ func (p *User) FromJSON(r io.Reader) error {
 type Customer struct {
 	Firstname   string
 	Lastname    string
-	DateOfBirth time.Time
+	DateOfBirth primitive.DateTime
 	Gender      Gender
 	Phone       string
 	Nationality string
-	//ticket slice
+	Tickets     []CustomerTicket
 }
 
 type Admin struct {

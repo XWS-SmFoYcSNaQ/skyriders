@@ -3,10 +3,12 @@ package repo
 import (
 	"Skyriders/model"
 	"context"
+	"errors"
 	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -46,5 +48,36 @@ func (fr *FlightRepo) Insert(flight *model.Flight) error {
 		return err
 	}
 	fr.logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return nil
+}
+
+func (fr *FlightRepo) GetOne(flightId primitive.ObjectID) (*model.Flight, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var flight model.Flight
+	result := fr.db.FindOne(ctx, bson.M{"_id": flightId}).Decode(&flight)
+	if result != nil {
+		fr.logger.Println("Flight repo: error getting flight, id: ", flightId)
+		return nil, result
+	}
+
+	return &flight, nil
+}
+
+func (fr *FlightRepo) Update(flightId primitive.ObjectID, flight *model.Flight) error {
+	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+	defer cancel()
+
+	result, err := fr.db.UpdateByID(ctx, flightId, bson.M{"$set": flight})
+	if err != nil {
+		fr.logger.Println(err.Error())
+		return errors.New("error updating flight")
+	}
+	if result.MatchedCount == 0 {
+		fr.logger.Printf("There is no document with id: %s", flightId.String())
+		return errors.New("invalid document id")
+	}
+
 	return nil
 }
