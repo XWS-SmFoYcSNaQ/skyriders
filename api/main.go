@@ -68,13 +68,30 @@ func initEnforcer(logger *log.Logger) *casbin.Enforcer {
 		logger.Panicf("Failed to load enforcer policy from the database: ", err.Error())
 	}
 
-	configurePolicies(enforcer)
+	configurePolicies(enforcer, logger)
 
 	return enforcer
 }
 
-func configurePolicies(enforcer *casbin.Enforcer) {
-	_, _ = enforcer.AddPolicy("customer", "logout", "GET")
+func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
+
+	if hasPolicy, _ := enforcer.AddGroupingPolicy("6425bd9edb1ff9554c5621da", "admin"); !hasPolicy {
+		_, err := enforcer.AddGroupingPolicy("6425bd9edb1ff9554c5621da", "admin")
+		if err != nil {
+			logger.Println("Failed to add admin group policy")
+		}
+	}
+
+	if hasPolicy, _ := enforcer.AddPolicy("customer", "logout", "GET"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("customer", "logout", "GET")
+	}
+
+	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "POST"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("admin", "flight", "POST")
+	}
+	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "DELETE"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("admin", "flight", "DELETE")
+	}
 }
 
 func main() {
