@@ -15,5 +15,5 @@ func NewUserRoute(userController controller.UserController) *UserRoute {
 
 func (ur *UserRoute) UserRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/user")
-	router.GET("", ur.userController.GetAllUsers) //maybe path "/"
+	router.GET("", ur.userController.GetAllUsers)
 }

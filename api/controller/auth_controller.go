@@ -5,7 +5,8 @@ import (
 	"Skyriders/model"
 	"Skyriders/service"
 	"Skyriders/utils"
-	"context"
+	"fmt"
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -14,46 +15,50 @@ import (
 type AuthController struct {
 	logger  *log.Logger
 	service *service.UserService
-	ctx     context.Context
 }
 
-func NewAuthController(logger *log.Logger, service *service.UserService, ctx context.Context) *AuthController {
-	return &AuthController{logger: logger, service: service, ctx: ctx}
+func NewAuthController(logger *log.Logger, service *service.UserService) *AuthController {
+	return &AuthController{logger: logger, service: service}
 }
 
-func (ac *AuthController) Register(ctx *gin.Context) {
-	var credentials *service.CreateCustomerRequestParams
+func (ac *AuthController) Register(enforcer *casbin.Enforcer) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var credentials *service.CreateCustomerRequestParams
 
-	if err := ctx.ShouldBindJSON(&credentials); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
-		return
+		if err := ctx.ShouldBindJSON(&credentials); err != nil {
+			ctx.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		hashedPassword := utils.HashPassword(credentials.Password)
+		credentials.Password = ""
+
+		user := &model.User{
+			Email:    credentials.Email,
+			Password: hashedPassword,
+			Role:     model.CustomerRole,
+			Customer: &model.Customer{
+				Firstname:   credentials.Firstname,
+				Lastname:    credentials.Lastname,
+				DateOfBirth: credentials.DateOfBirth,
+				Gender:      credentials.Gender,
+				Phone:       credentials.Phone,
+				Nationality: credentials.Nationality,
+			},
+			Admin: nil,
+		}
+
+		id, err := ac.service.Insert(user)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadGateway, err.Error())
+			return
+		}
+
+		_, _ = enforcer.AddGroupingPolicy(fmt.Sprint(id), "customer")
+
+		ctx.JSON(http.StatusCreated, gin.H{"status:": "success"})
 	}
-
-	hashedPassword := utils.HashPassword(credentials.Password)
-
-	user := &model.User{
-		Email:    credentials.Email,
-		Password: hashedPassword,
-		Role:     model.CustomerRole,
-		Customer: &model.Customer{
-			Firstname:   credentials.Firstname,
-			Lastname:    credentials.Lastname,
-			DateOfBirth: credentials.DateOfBirth,
-			Gender:      credentials.Gender,
-			Phone:       credentials.Phone,
-			Nationality: credentials.Nationality,
-		},
-		Admin: nil,
-	}
-
-	err := ac.service.Insert(user)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadGateway, err.Error())
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, gin.H{"status:": "success"})
 }
 
 func (ac *AuthController) Login(ctx *gin.Context) {
@@ -66,18 +71,16 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 
 	user, err := ac.service.GetByEmail(credentials.Email)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "invalid email or password"})
 		return
 	}
 
 	if err := utils.ComparePasswords(user.Password, credentials.Password); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "invalid email or password"})
 		return
 	}
 
 	config, _ := config2.LoadConfig(".")
-
-	ac.logger.Println(config.RefreshTokenPrivateKey)
 
 	accessToken, err := utils.CreateToken(config.AccessTokenExpiresIn, user.ID, config.AccessTokenPrivateKey)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"Skyriders/model"
 	"Skyriders/repo"
 	"Skyriders/service"
-	"context"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -16,11 +15,10 @@ type FlightController struct {
 	logger  *log.Logger
 	repo    *repo.FlightRepo
 	service *service.FlightService
-	ctx     context.Context
 }
 
-func CreateFlightController(logger *log.Logger, repo *repo.FlightRepo, service *service.FlightService, ctx context.Context) *FlightController {
-	return &FlightController{logger: logger, repo: repo, service: service, ctx: ctx}
+func CreateFlightController(logger *log.Logger, repo *repo.FlightRepo, service *service.FlightService) *FlightController {
+	return &FlightController{logger: logger, repo: repo, service: service}
 }
 
 func (fc *FlightController) GetAllFlights(ctx *gin.Context) {

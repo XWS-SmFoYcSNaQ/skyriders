@@ -5,37 +5,37 @@ import (
 	"Skyriders/repo"
 	"Skyriders/routes"
 	"Skyriders/service"
-	"context"
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
 
-func InitializeAllControllers(router *gin.RouterGroup, logger *log.Logger, database *mongo.Database, ctx context.Context) {
-	SetupFlightController(router, logger, database, ctx)
-	userService := SetupUserController(router, logger, database, ctx)
-	SetupAuthRoutes(router, logger, userService)
+func InitializeAllControllers(router *gin.RouterGroup, logger *log.Logger, database *mongo.Database, enforcer *casbin.Enforcer) {
+	SetupFlightController(router, logger, database)
+	userService := SetupUserController(router, logger, database)
+	SetupAuthRoutes(router, logger, userService, enforcer)
 }
 
-func SetupFlightController(router *gin.RouterGroup, logger *log.Logger, database *mongo.Database, ctx context.Context) {
+func SetupFlightController(router *gin.RouterGroup, logger *log.Logger, database *mongo.Database) {
 	flightRepo := repo.CreateFlightRepo(logger, database.Collection("flights"))
 	flightService := service.CreateFlightService(logger, flightRepo)
-	flightController := *controller.CreateFlightController(logger, flightRepo, flightService, ctx)
+	flightController := *controller.CreateFlightController(logger, flightRepo, flightService)
 	flightRoutes := routes.NewFlightRoute(flightController)
 	flightRoutes.FlightRoute(router)
 }
 
-func SetupUserController(router *gin.RouterGroup, logger *log.Logger, database *mongo.Database, ctx context.Context) *service.UserService {
+func SetupUserController(router *gin.RouterGroup, logger *log.Logger, database *mongo.Database) *service.UserService {
 	userRepo := repo.CreateUserRepo(logger, database.Collection("users"))
 	userService := service.CreateUserService(logger, userRepo)
-	userController := *controller.CreateUserController(logger, userRepo, userService, ctx)
+	userController := *controller.CreateUserController(logger, userRepo, userService)
 	userRoutes := routes.NewUserRoute(userController)
 	userRoutes.UserRoute(router)
 	return userService
 }
 
-func SetupAuthRoutes(router *gin.RouterGroup, logger *log.Logger, userService *service.UserService) {
-	authController := *controller.NewAuthController(logger, userService, ctx)
+func SetupAuthRoutes(router *gin.RouterGroup, logger *log.Logger, userService *service.UserService, enforcer *casbin.Enforcer) {
+	authController := *controller.NewAuthController(logger, userService)
 	authRoutes := routes.NewAuthRoute(authController, userService)
-	authRoutes.AuthRoute(router)
+	authRoutes.AuthRoute(router, enforcer)
 }
