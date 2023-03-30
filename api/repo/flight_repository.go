@@ -38,7 +38,7 @@ func (fr *FlightRepo) GetAll() (model.Flights, error) {
 	return flights, nil
 }
 
-func (fr *FlightRepo) Insert(flight *model.Flight) error {
+func (fr *FlightRepo) Create(flight *model.Flight) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -78,6 +78,16 @@ func (fr *FlightRepo) Update(flightId primitive.ObjectID, flight *model.Flight) 
 		fr.logger.Printf("There is no document with id: %s", flightId.String())
 		return errors.New("invalid document id")
 	}
+	return nil
+}
 
+func (fr *FlightRepo) Delete(flight *model.Flight) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_, err := fr.db.DeleteOne(ctx, &flight)
+	if err != nil {
+		fr.logger.Println(err)
+		return err
+	}
 	return nil
 }

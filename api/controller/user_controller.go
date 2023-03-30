@@ -32,7 +32,7 @@ func (uc *UserController) GetAllUsers(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get users"})
-		uc.logger.Fatal("Unable to get users:", err)
+		uc.logger.Print("Unable to get users:", err)
 		return
 	}
 

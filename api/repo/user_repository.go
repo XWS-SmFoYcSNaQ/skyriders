@@ -38,17 +38,17 @@ func (ur *UserRepo) GetAll() (model.Users, error) {
 	return users, nil
 }
 
-func (ur *UserRepo) Insert(user *model.User) error {
+func (ur *UserRepo) Insert(user *model.User) (id string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	result, err := ur.db.InsertOne(ctx, &user)
 	if err != nil {
 		ur.logger.Println(err)
-		return err
+		return "", err
 	}
 	ur.logger.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
+	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
 func (ur *UserRepo) GetByEmail(email string) (*model.User, error) {
