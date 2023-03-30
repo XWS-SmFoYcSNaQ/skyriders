@@ -61,3 +61,11 @@ func (service *UserService) GetById(id string) (*model.User, error) {
 func (service *UserService) GetAll() (model.Users, error) {
 	return service.repo.GetAll()
 }
+
+func (service *UserService) IsEmailExists(email string) bool {
+	user, _ := service.repo.GetByEmail(email)
+	if user != nil {
+		return true
+	}
+	return false
+}
