@@ -25,7 +25,8 @@ func CreateFlightController(logger *log.Logger, repo *repo.FlightRepo, service *
 }
 
 func (fc *FlightController) GetAllFlights(ctx *gin.Context) {
-	flights, err := fc.repo.GetAll()
+	filters := ctx.Request.URL.Query()
+	flights, err := fc.repo.GetAll(filters)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
@@ -65,8 +66,7 @@ func (fc *FlightController) DeleteFlight(ctx *gin.Context) {
 		return
 	}
 
-	flightObj := model.Flight{ID: id}
-	err = fc.repo.Delete(&flightObj)
+	err = fc.repo.Delete(id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
