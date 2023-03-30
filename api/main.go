@@ -7,17 +7,13 @@ import (
 	mongodbadapter "github.com/casbin/mongodb-adapter/v3"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (

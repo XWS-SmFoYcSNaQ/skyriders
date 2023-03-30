@@ -5,11 +5,9 @@ import (
 	"Skyriders/repo"
 	"Skyriders/service"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type KeyProduct struct{}
@@ -28,8 +26,8 @@ func (fc *FlightController) GetAllFlights(ctx *gin.Context) {
 	flights, err := fc.repo.GetAll()
 
 	if err != nil {
-		fc.logger.Fatal("Unable to get flights:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
+		fc.logger.Println("Unable to get flights:", err)
 	}
 
 	ctx.JSON(http.StatusOK, flights)
