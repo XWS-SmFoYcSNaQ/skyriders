@@ -5,6 +5,7 @@ import FlightForm from '../components/flight-form/FlightForm';
 import FlightList from '../components/flight-list/FlightList';
 import { Box } from '@mui/system';
 import { Flight } from '../model/flight';
+import { Container } from '@mui/material';
 
 const Flights = () => {
   const [data, setData] = useState([])
@@ -24,7 +25,7 @@ const Flights = () => {
 
   const onFlightSubmit = async (flight: Flight) => {
     try {
-      await axios.post("http://localhost:9000/api/flight", flight)
+      await axios.post(`${process.env.REACT_APP_API}/flight`, flight)
       fetchData()
     }catch (err) {
       console.log(err)
@@ -33,7 +34,7 @@ const Flights = () => {
 
   const onFlightDelete = async (flight: Flight) => {
     try {
-      await axios.delete(`http://localhost:9000/api/flight/${flight.id}`)
+      await axios.delete(`${process.env.REACT_APP_API}/flight/${flight.id}`)
       fetchData()
     }catch (err) {
       console.log(err)
@@ -42,12 +43,14 @@ const Flights = () => {
 
   return (
     <div>
-      <Box sx={{padding: "30px"}}>
-        <FlightList onDelete={onFlightDelete} data={data}/>
-        <Box sx={{paddingTop: "30px"}}>
-          <FlightForm onSubmit={onFlightSubmit}/>
+      <Container maxWidth="lg">
+        <Box sx={{padding: "30px"}}>
+          <FlightList onDelete={onFlightDelete} data={data}/>
+            <Box sx={{paddingTop: "30px"}}>
+              <FlightForm onSubmit={onFlightSubmit}/>
+            </Box>
         </Box>
-      </Box>
+      </Container>
     </div>
   );
 }

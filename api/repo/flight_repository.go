@@ -36,7 +36,7 @@ func (fr *FlightRepo) GetAll() (model.Flights, error) {
 	return flights, nil
 }
 
-func (fr *FlightRepo) Insert(flight *model.Flight) error {
+func (fr *FlightRepo) Create(flight *model.Flight) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

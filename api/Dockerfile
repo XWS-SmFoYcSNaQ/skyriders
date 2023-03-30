@@ -11,5 +11,6 @@ FROM alpine
 WORKDIR /app
 COPY --from=build_container /app/api /usr/bin
 COPY --from=build_container /app/app.env /app/app.env 
+COPY --from=build_container /app/config/rbac_model.conf /app/config/rbac_model.conf
 EXPOSE 8080
 ENTRYPOINT ["api"]

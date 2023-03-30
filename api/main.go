@@ -3,17 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/casbin/casbin/v2"
+	mongodbadapter "github.com/casbin/mongodb-adapter/v3"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -30,6 +30,10 @@ func MiddlewareContentTypeSet() gin.HandlerFunc {
 
 func initDb() {
 	mongoUri := os.Getenv("MONGODB_URI")
+
+	if mongoUri == "" {
+		mongoUri = "localhost:9100"
+	}
 	clientOptions := options.Client().ApplyURI("mongodb://" + mongoUri + "/?connect=direct")
 
 	var err error
@@ -47,10 +51,53 @@ func initDb() {
 	fmt.Println("Connected to MongoDB!")
 }
 
+func initEnforcer(logger *log.Logger) *casbin.Enforcer {
+	mongoUri := os.Getenv("MONGODB_URI")
+	adapter, err := mongodbadapter.NewAdapter(mongoUri + "/skyriders")
+	if err != nil {
+		logger.Panicf("Failed to initialize casbin adapter: ", err.Error())
+	}
+
+	enforcer, err := casbin.NewEnforcer("config/rbac_model.conf", adapter)
+	if err != nil {
+		logger.Panicf("Failed to create casbin enforcer: ", err.Error())
+	}
+
+	err = enforcer.LoadPolicy()
+	if err != nil {
+		logger.Panicf("Failed to load enforcer policy from the database: ", err.Error())
+	}
+
+	configurePolicies(enforcer, logger)
+
+	return enforcer
+}
+
+func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
+
+	if hasPolicy, _ := enforcer.AddGroupingPolicy("6425bd9edb1ff9554c5621da", "admin"); !hasPolicy {
+		_, err := enforcer.AddGroupingPolicy("6425bd9edb1ff9554c5621da", "admin")
+		if err != nil {
+			logger.Println("Failed to add admin group policy")
+		}
+	}
+
+	if hasPolicy, _ := enforcer.AddPolicy("customer", "logout", "GET"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("customer", "logout", "GET")
+	}
+
+	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "POST"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("admin", "flight", "POST")
+	}
+	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "DELETE"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("admin", "flight", "DELETE")
+	}
+}
+
 func main() {
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-		port = "8080"
+		port = "9000"
 	}
 
 	initDb()
@@ -61,6 +108,8 @@ func main() {
 
 	router := gin.Default()
 	router.Use(MiddlewareContentTypeSet())
+
+	enforcer := initEnforcer(logger)
 
 	server := &http.Server{
 		Addr:         ":" + port,
@@ -81,7 +130,7 @@ func main() {
 
 	routerGroup := router.Group("/api")
 
-	InitializeAllControllers(routerGroup, logger, database, ctx)
+	InitializeAllControllers(routerGroup, logger, database, enforcer)
 
 	go func() {
 		err := server.ListenAndServe()

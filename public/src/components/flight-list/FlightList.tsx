@@ -7,7 +7,10 @@ interface Props {
 }
 
 const FlightList = ({ data, onDelete }: Props) => {
-  
+  if(!data || data.length === 0) {
+    return <div>Nema nista prika</div>
+  }
+
   return (
     <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -32,8 +35,8 @@ const FlightList = ({ data, onDelete }: Props) => {
                 <TableCell component="th" scope="row">{d.placeDestination}</TableCell>
                 <TableCell align="right">{d.placeSource}</TableCell>
                 <TableCell align="right">{d.ticketPrice}</TableCell>
-                <TableCell align="right">{d.dateSource}</TableCell>
-                <TableCell align="right">{d.dateDestination}</TableCell>
+                <TableCell align="right">{new Date(d.dateSource).toLocaleString()}</TableCell>
+                <TableCell align="right">{new Date(d.dateDestination).toLocaleString()}</TableCell>
                 <TableCell align="right">{d.totalTickets}</TableCell>
                 <TableCell align="right">{d.boughtTickets}</TableCell>
                 <TableCell align="right">
