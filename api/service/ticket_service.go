@@ -3,7 +3,6 @@ package service
 import (
 	"Skyriders/model"
 	"Skyriders/repo"
-	"errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 )
@@ -19,7 +18,7 @@ func CreateTicketService(logger *log.Logger, ticketRepo *repo.TicketRepo, flight
 	return &TicketService{logger, ticketRepo, flightService, userService}
 }
 
-func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, customerId primitive.ObjectID, quantity int) error {
+func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, user *model.User, quantity int) error {
 	flight, err := ticketService.flightService.ReserveTickets(flightId, quantity)
 	if err != nil {
 		return err
@@ -27,21 +26,12 @@ func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, cust
 
 	var newTickets = make([]model.Ticket, quantity)
 	for i := 0; i < quantity; i++ {
-		newTicket := model.Ticket{FlightID: flightId, CustomerID: customerId}
+		newTicket := model.Ticket{FlightID: flightId, CustomerID: user.ID}
 		newTickets[i] = newTicket
 	}
 	err = ticketService.ticketRepo.InsertMany(newTickets)
 	if err != nil {
 		return err
-	}
-
-	user, err := ticketService.userService.GetById(customerId.Hex())
-	if err != nil {
-		return err
-	}
-
-	if user.Customer == nil {
-		return errors.New("user is not customer")
 	}
 
 	if user.Customer.Tickets == nil {
@@ -56,7 +46,7 @@ func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, cust
 		user.Customer.Tickets = append(user.Customer.Tickets, *customerTicket)
 	}
 
-	err = ticketService.userService.Update(customerId, *user)
+	err = ticketService.userService.Update(user.ID, *user)
 	if err != nil {
 		return err
 	}

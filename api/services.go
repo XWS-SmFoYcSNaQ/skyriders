@@ -29,7 +29,7 @@ func InitializeAllControllers(router *gin.RouterGroup, logger *log.Logger, datab
 	ticketService := service.CreateTicketService(logger, ticketRepo, flightService, userService)
 	ticketController := controller.CreateTicketController(logger, ticketService)
 	ticketRoutes := routes.NewTicketRoute(ticketController)
-	ticketRoutes.TicketRoute(router, userService)
+	ticketRoutes.TicketRoute(router, userService, enforcer)
 
 	authController := *controller.NewAuthController(logger, userService)
 	authRoutes := routes.NewAuthRoute(authController)

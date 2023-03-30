@@ -34,6 +34,7 @@ func (repo *TicketRepo) Insert(ticket *model.Ticket) error {
 func (repo *TicketRepo) InsertMany(tickets []model.Ticket) error {
 	ctx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
 	defer cancel()
+
 	var tis []interface{}
 	for _, t := range tickets {
 		tis = append(tis, t)

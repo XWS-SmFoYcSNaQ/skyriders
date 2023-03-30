@@ -22,20 +22,17 @@ func CreateTicketController(logger *log.Logger, ticketService *service.TicketSer
 	return &TicketController{logger, ticketService}
 }
 
-func (controller *TicketController) GetAllUserTickets(ctx *gin.Context) {
-	
-}
-
 func (controller *TicketController) BuyTickets(ctx *gin.Context) {
-	//user := controller.validateUser(ctx)
-	//if user == nil {
-	//	return
-	//}
+	user := controller.validateUser(ctx)
+	if user == nil {
+		return
+	}
+
 	buyTicketRequest := contracts.BuyTicketRequest{}
 	err := json.NewDecoder(ctx.Request.Body).Decode(&buyTicketRequest)
 	if err != nil {
 		controller.logger.Println(err.Error())
-		ctx.JSON(http.StatusBadRequest, "Bad request")
+		ctx.JSON(http.StatusBadRequest, "bad request")
 		return
 	}
 
@@ -45,13 +42,8 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, "flight not found")
 		return
 	}
-	customerId, err := primitive.ObjectIDFromHex(buyTicketRequest.CustomerId)
-	if err != nil {
-		controller.logger.Printf("Error invalid customer ID: %s", buyTicketRequest.CustomerId)
-		ctx.JSON(http.StatusNotFound, "customer not found")
-		return
-	}
-	err = controller.ticketService.BuyTickets(flightId, customerId, buyTicketRequest.Quantity)
+
+	err = controller.ticketService.BuyTickets(flightId, user, buyTicketRequest.Quantity)
 	if err != nil {
 		controller.logger.Println(err.Error())
 		ctx.JSON(http.StatusInternalServerError, err.Error())
@@ -62,7 +54,7 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 }
 
 func (controller *TicketController) validateUser(ctx *gin.Context) *model.User {
-	user, ok := ctx.Value("currentUser").(model.User)
+	user, ok := ctx.Value("currentUser").(*model.User)
 	if !ok {
 		controller.logger.Println("Error casting 'currentUser' from context into type model.Customer")
 		ctx.JSON(http.StatusInternalServerError, errors.New("an unknown error occurred"))
@@ -70,10 +62,10 @@ func (controller *TicketController) validateUser(ctx *gin.Context) *model.User {
 	}
 
 	if user.Customer == nil {
-		controller.logger.Println("User is not customer")
-		ctx.JSON(http.StatusForbidden, errors.New("forbidden"))
+		controller.logger.Println("user is not customer????")
+		ctx.JSON(http.StatusInternalServerError, errors.New("an unknown error occurred"))
 		return nil
 	}
 
-	return &user
+	return user
 }

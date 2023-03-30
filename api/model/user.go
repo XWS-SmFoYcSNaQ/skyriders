@@ -2,8 +2,10 @@ package model
 
 import (
 	"encoding/json"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Role int
@@ -49,7 +51,7 @@ func (p *User) FromJSON(r io.Reader) error {
 type Customer struct {
 	Firstname   string
 	Lastname    string
-	DateOfBirth primitive.DateTime
+	DateOfBirth time.Time
 	Gender      Gender
 	Phone       string
 	Nationality string
