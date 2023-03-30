@@ -13,6 +13,9 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -31,6 +34,10 @@ func MiddlewareContentTypeSet() gin.HandlerFunc {
 
 func initDb() {
 	mongoUri := os.Getenv("MONGODB_URI")
+
+	if mongoUri == "" {
+		mongoUri = "localhost:9100"
+	}
 	clientOptions := options.Client().ApplyURI("mongodb://" + mongoUri + "/?connect=direct")
 
 	var err error
@@ -77,7 +84,7 @@ func configurePolicies(enforcer *casbin.Enforcer) {
 func main() {
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
-		port = "8080"
+		port = "9000"
 	}
 
 	initDb()
@@ -101,7 +108,7 @@ func main() {
 	logger.Println("Server listening on port", port)
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:" + port}
+	corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://localhost:9001"}
 	corsConfig.AllowCredentials = true
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"}
 
