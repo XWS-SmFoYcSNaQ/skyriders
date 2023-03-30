@@ -17,7 +17,7 @@ func NewFlightRoute(flightController controller.FlightController) *FlightRoute {
 
 func (fr *FlightRoute) FlightRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/flight")
-	router.GET("", fr.flightController.GetAllFlights) //maybe path "/"
+	router.GET("", fr.flightController.GetAllFlights)
 	router.POST("", middleware.DeserializeFlight(), fr.flightController.PostFlight)
 	router.DELETE("/:id", fr.flightController.DeleteFlight)
 }

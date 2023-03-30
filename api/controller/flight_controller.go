@@ -4,12 +4,10 @@ import (
 	"Skyriders/model"
 	"Skyriders/repo"
 	"Skyriders/service"
-	"context"
-	"log"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
+	"net/http"
 )
 
 type KeyProduct struct{}
@@ -18,19 +16,18 @@ type FlightController struct {
 	logger  *log.Logger
 	repo    *repo.FlightRepo
 	service *service.FlightService
-	ctx     context.Context
 }
 
-func CreateFlightController(logger *log.Logger, repo *repo.FlightRepo, service *service.FlightService, ctx context.Context) *FlightController {
-	return &FlightController{logger: logger, repo: repo, service: service, ctx: ctx}
+func CreateFlightController(logger *log.Logger, repo *repo.FlightRepo, service *service.FlightService) *FlightController {
+	return &FlightController{logger: logger, repo: repo, service: service}
 }
 
 func (fc *FlightController) GetAllFlights(ctx *gin.Context) {
 	flights, err := fc.repo.GetAll()
 
 	if err != nil {
-		fc.logger.Fatal("Unable to get flights:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
+		fc.logger.Println("Unable to get flights:", err)
 	}
 
 	ctx.JSON(http.StatusOK, flights)

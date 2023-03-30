@@ -27,7 +27,7 @@ type CreateCustomerRequestParams struct {
 	Nationality string       `json:"nationality"`
 }
 
-func (service *UserService) Insert(user *model.User) error {
+func (service *UserService) Insert(user *model.User) (id string, err error) {
 	return service.repo.Insert(user)
 }
 
