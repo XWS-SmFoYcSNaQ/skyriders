@@ -9,13 +9,13 @@ import (
 
 type Flight struct {
 	ID               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	TicketPrice      float32            `bson:"ticketPrice,omitempty" json:"ticketPrice"`
-	DateSource       primitive.DateTime `bson:"dateSource,omitempty" json:"dateSource"`
-	DateDestination  primitive.DateTime `bson:"dateDestination,omitempty" json:"dateDestination"`
-	PlaceSource      string             `bson:"placeSource,omitempty" json:"placeSource"`
-	PlaceDestination string             `bson:"placeDestination,omitempty" json:"placeDestination"`
-	TotalTickets     int                `bson:"totalTickets,omitempty" json:"totalTickets"`
-	BoughtTickets    int                `bson:"buyTickets,omitempty" json:"boughtTickets"`
+	TicketPrice      float32            `bson:"ticketPrice" json:"ticketPrice"`
+	DateSource       primitive.DateTime `bson:"dateSource" json:"dateSource"`
+	DateDestination  primitive.DateTime `bson:"dateDestination" json:"dateDestination"`
+	PlaceSource      string             `bson:"placeSource" json:"placeSource"`
+	PlaceDestination string             `bson:"placeDestination" json:"placeDestination"`
+	TotalTickets     int                `bson:"totalTickets" json:"totalTickets"`
+	BoughtTickets    int                `bson:"boughtTickets" json:"boughtTickets"`
 }
 
 type Flights []*Flight
