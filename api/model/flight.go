@@ -2,6 +2,8 @@ package model
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -33,4 +35,18 @@ func (p *Flight) ToJSON(w io.Writer) error {
 func (p *Flight) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(p)
+}
+
+func (p *Flight) BuyTickets(quantity int) error {
+	if quantity < 1 {
+		return errors.New("quantity must be greater then 0")
+	}
+	remainingTickets := p.TotalTickets - p.BoughtTickets
+	if remainingTickets-quantity < 0 {
+		msg := fmt.Sprintf("You cannot buy %d tickets, there are only %d tickets left", quantity, remainingTickets)
+		return errors.New(msg)
+	}
+	p.BoughtTickets += quantity
+
+	return nil
 }

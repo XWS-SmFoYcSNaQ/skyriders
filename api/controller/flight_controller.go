@@ -4,10 +4,12 @@ import (
 	"Skyriders/model"
 	"Skyriders/repo"
 	"Skyriders/service"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/gin-gonic/gin"
 )
 
 type KeyProduct struct{}

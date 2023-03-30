@@ -3,11 +3,13 @@ package repo
 import (
 	"Skyriders/model"
 	"context"
+	"fmt"
+	"log"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"time"
 )
 
 type UserRepo struct {
@@ -81,8 +83,27 @@ func (ur *UserRepo) GetById(id string) (*model.User, error) {
 	return &user, nil
 }
 
+func (ur *UserRepo) Update(id primitive.ObjectID, user model.User) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := ur.getCollection()
+
+	result, err := usersCollection.UpdateByID(ctx, id, bson.M{"$set": user})
+	if err != nil {
+		ur.logger.Println(err)
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		msg := fmt.Sprintf("no user with id: %s", id)
+		ur.logger.Println(msg)
+	}
+
+	return nil
+}
+
 func (ur *UserRepo) getCollection() *mongo.Collection {
-	patientDatabase := ur.db.Database()
-	patientsCollection := patientDatabase.Collection("users")
-	return patientsCollection
+	userDatabase := ur.db.Database()
+	return userDatabase.Collection("users")
 }

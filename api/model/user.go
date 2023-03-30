@@ -2,9 +2,10 @@ package model
 
 import (
 	"encoding/json"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Role int
@@ -54,7 +55,7 @@ type Customer struct {
 	Gender      Gender
 	Phone       string
 	Nationality string
-	//ticket slice
+	Tickets     []CustomerTicket
 }
 
 type Admin struct {

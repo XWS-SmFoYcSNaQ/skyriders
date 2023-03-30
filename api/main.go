@@ -3,21 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/casbin/casbin/v2"
 	mongodbadapter "github.com/casbin/mongodb-adapter/v3"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
 )
 
 var (
-	ctx    context.Context
 	client *mongo.Client
 )
 
@@ -85,6 +85,9 @@ func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
 	}
 	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "DELETE"); !hasPolicy {
 		_, _ = enforcer.AddPolicy("admin", "flight", "DELETE")
+	}
+	if hasPolicy, _ := enforcer.AddPolicy("customer", "tickets", "POST"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("customer", "tickets", "POST")
 	}
 }
 

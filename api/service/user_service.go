@@ -3,9 +3,10 @@ package service
 import (
 	"Skyriders/model"
 	"Skyriders/repo"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserService struct {
@@ -60,6 +61,10 @@ func (service *UserService) GetById(id string) (*model.User, error) {
 
 func (service *UserService) GetAll() (model.Users, error) {
 	return service.repo.GetAll()
+}
+
+func (service *UserService) Update(userId primitive.ObjectID, user model.User) error {
+	return service.repo.Update(userId, user)
 }
 
 func (service *UserService) IsEmailExists(email string) bool {
