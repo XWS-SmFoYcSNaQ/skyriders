@@ -9,10 +9,10 @@ const SingleTicket = ({ ticket } : SingleTicketProps ) => {
   return (
     <Card sx={{ minWidth: 275, backgroundColor:"var(--primary-color)", color: "var(--primary-text)", fontSize: "1.2rem" }}>
       <CardContent>
-        <Typography sx={{ fontSize: 16, fontWeight:"bold", color:"#222", letterSpacing:"1.1px" }}  gutterBottom>
+        <Typography sx={{ fontSize: 16, fontWeight:"bold", color:"#222", letterSpacing:"1.1px", textAlign:"center" }}  gutterBottom>
           Ticket
         </Typography>
-        <Grid container justifyContent="center" alignItems="center">
+        <Grid container>
           <Grid item xs={4}>
             From
           </Grid>
@@ -50,9 +50,6 @@ const SingleTicket = ({ ticket } : SingleTicketProps ) => {
             {ticket.quantity}
           </Grid>
         </Grid>
-        <Typography variant="body2">
-          
-        </Typography>
       </CardContent>
     </Card>
   )
