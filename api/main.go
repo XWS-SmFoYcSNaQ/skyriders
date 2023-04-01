@@ -3,21 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/casbin/casbin/v2"
 	mongodbadapter "github.com/casbin/mongodb-adapter/v3"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
 )
 
 var (
-	ctx    context.Context
 	client *mongo.Client
 )
 
@@ -28,12 +28,7 @@ func MiddlewareContentTypeSet() gin.HandlerFunc {
 	}
 }
 
-func initDb() {
-	mongoUri := os.Getenv("MONGODB_URI")
-
-	if mongoUri == "" {
-		mongoUri = "localhost:9100"
-	}
+func initDb(mongoUri string) {
 	clientOptions := options.Client().ApplyURI("mongodb://" + mongoUri + "/?connect=direct")
 
 	var err error
@@ -51,8 +46,7 @@ func initDb() {
 	fmt.Println("Connected to MongoDB!")
 }
 
-func initEnforcer(logger *log.Logger) *casbin.Enforcer {
-	mongoUri := os.Getenv("MONGODB_URI")
+func initEnforcer(logger *log.Logger, mongoUri string) *casbin.Enforcer {
 	adapter, err := mongodbadapter.NewAdapter(mongoUri + "/skyriders")
 	if err != nil {
 		logger.Panicf("Failed to initialize casbin adapter: ", err.Error())
@@ -92,6 +86,9 @@ func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
 	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "DELETE"); !hasPolicy {
 		_, _ = enforcer.AddPolicy("admin", "flight", "DELETE")
 	}
+	if hasPolicy, _ := enforcer.AddPolicy("customer", "tickets", "POST"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("customer", "tickets", "POST")
+	}
 }
 
 func main() {
@@ -99,8 +96,12 @@ func main() {
 	if len(port) == 0 {
 		port = "9000"
 	}
+	mongoUri := os.Getenv("MONGODB_URI")
+	if mongoUri == "" {
+		mongoUri = "localhost:9100"
+	}
 
-	initDb()
+	initDb(mongoUri)
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -109,7 +110,7 @@ func main() {
 	router := gin.Default()
 	router.Use(MiddlewareContentTypeSet())
 
-	enforcer := initEnforcer(logger)
+	enforcer := initEnforcer(logger, mongoUri)
 
 	server := &http.Server{
 		Addr:         ":" + port,

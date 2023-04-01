@@ -1,4 +1,13 @@
-import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button } from "@mui/material";
+import {
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+} from "@mui/material";
 import { Flight } from "../../model/flight";
 
 interface Props {
@@ -7,12 +16,19 @@ interface Props {
 }
 
 const FlightList = ({ data, onDelete }: Props) => {
-  if(!data || data.length === 0) {
-    return <div>Nema nista prika</div>
+  if (!data || data.length === 0) {
+    return (
+      <>
+        <h3>Flights</h3>
+        <div>Empty</div>
+      </>
+    );
   }
 
   return (
-    <TableContainer component={Paper}>
+    <>
+      <h3>Flights</h3>
+      <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -30,23 +46,36 @@ const FlightList = ({ data, onDelete }: Props) => {
             {data.map((d: any, index: number) => (
               <TableRow
                 key={index}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row">{d.placeDestination}</TableCell>
+                <TableCell component="th" scope="row">
+                  {d.placeDestination}
+                </TableCell>
                 <TableCell align="right">{d.placeSource}</TableCell>
                 <TableCell align="right">{d.ticketPrice}</TableCell>
-                <TableCell align="right">{new Date(d.dateSource).toLocaleString()}</TableCell>
-                <TableCell align="right">{new Date(d.dateDestination).toLocaleString()}</TableCell>
+                <TableCell align="right">
+                  {new Date(d.dateSource).toLocaleString()}
+                </TableCell>
+                <TableCell align="right">
+                  {new Date(d.dateDestination).toLocaleString()}
+                </TableCell>
                 <TableCell align="right">{d.totalTickets}</TableCell>
                 <TableCell align="right">{d.boughtTickets}</TableCell>
                 <TableCell align="right">
-                  <Button variant="outlined" color="error" onClick={() => onDelete(d)}>Delete</Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => onDelete(d)}
+                  >
+                    Delete
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+    </>
   );
 };
 
