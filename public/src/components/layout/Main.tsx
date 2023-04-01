@@ -15,34 +15,46 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LoginIcon from '@mui/icons-material/Login';
 import HomeIcon from '@mui/icons-material/Home';
 import { Outlet, NavLink  } from 'react-router-dom';
+import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 
 const drawerWidth = 240;
 
 interface NavItem {
   route: string;  
   text: string;
+  icon: JSX.Element;
 }
 
 const MainLayout = () => {
   const upperNavItems: NavItem[] = [
     {
       route: '/',
-      text: 'Home'
+      text: 'Home',
+      icon: <HomeIcon/>
     },
     {
       route: '/flights',
-      text: 'Flights'
+      text: 'Flights',
+      icon: <FlightTakeoffIcon/>
     },
+    {
+      route: "/myTickets",
+      text: "My Tickets",
+      icon: <AirplaneTicketIcon/>
+    }
   ];
 
   const lowerNavItems: NavItem[] = [
     {
       route: '/login',
-      text: 'Login'
+      text: 'Login',
+      icon: <LoginIcon/>
     },
     {
       route: '/register',
-      text: 'Register'
+      text: 'Register',
+      icon: <HowToRegIcon/>
     }
   ];
 
@@ -80,7 +92,7 @@ const MainLayout = () => {
               <ListItem disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
-                    {index % 2 === 0 ? <HomeIcon /> : <MailIcon />}
+                    {navItem.icon}
                   </ListItemIcon>
                     {navItem.text}
                 </ListItemButton>
@@ -96,9 +108,9 @@ const MainLayout = () => {
               <ListItem disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
-                    {index % 2 === 0 ? <LoginIcon /> : <HowToRegIcon />}
+                    {navItem.icon}
                   </ListItemIcon>
-                  {navItem.text}
+                    {navItem.text}
                 </ListItemButton>
               </ListItem>
             </NavLink>

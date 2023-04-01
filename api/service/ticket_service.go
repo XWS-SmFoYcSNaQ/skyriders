@@ -3,6 +3,7 @@ package service
 import (
 	"Skyriders/model"
 	"Skyriders/repo"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 )
@@ -52,6 +53,14 @@ func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, user
 	}
 
 	return nil
+}
+
+func (ticketService *TicketService) GetCustomerTickets(userId string) ([]model.CustomerTicket, error) {
+	user, err := ticketService.userService.GetById(userId) // TODO: Replace
+	if err != nil {
+		return nil, errors.New("error getting user")
+	}
+	return user.Customer.Tickets, nil
 }
 
 func createCustomerTicket(flight model.Flight, quantity int) *model.CustomerTicket {
