@@ -20,6 +20,7 @@ const RegistrationForm = ({onSubmit}: Props) => {
 
 
   const handleSubmit = (e: any) => {
+    console.log(data)
     e.preventDefault();
     onSubmit(data)
   }
