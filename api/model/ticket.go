@@ -11,7 +11,6 @@ type Ticket struct {
 }
 
 type CustomerTicket struct {
-	ID                     primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	FlightId               primitive.ObjectID `bson:"flightId,omitempty" json:"flightId"`
 	FlightDateSource       primitive.DateTime `bson:"flightDateSource,omitempty" json:"flightDateSource"`
 	FlightDateDestination  primitive.DateTime `bson:"flightDateDestination,omitempty" json:"flightDateDestination"`

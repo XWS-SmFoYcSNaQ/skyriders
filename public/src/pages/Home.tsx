@@ -87,7 +87,7 @@ const Home = () => {
                 </Typography>
               </CardContent>
               <CardActions>
-                <NavLink to='/tickets/userId'>
+                <NavLink to='/myTickets'>
                   <Button variant='contained' startIcon={<AirplaneTicketIcon/>} sx={{ 
                     my: 2, 
                     backgroundColor: 'var(--primary-dark)', 

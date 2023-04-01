@@ -14,6 +14,7 @@ import Home from './pages/Home';
 import Mainlayout from './components/layout/Main';
 import Flights from './pages/Flights';
 import Registration from './pages/Regsitration';
+import MyTickets from './pages/MyTickets';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,11 @@ const router = createBrowserRouter([
         index: true,
         path: "register",
         element: <Registration/>
+      },
+      {
+        index: true,
+        path: "myTickets",
+        element: <MyTickets/>
       }
     ]
   },

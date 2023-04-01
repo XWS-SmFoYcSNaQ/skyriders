@@ -2,6 +2,7 @@ package controller
 
 import (
 	"Skyriders/contracts"
+	"Skyriders/mappers"
 	"Skyriders/model"
 	"Skyriders/service"
 	"encoding/json"
@@ -53,10 +54,24 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Success")
 }
 
+func (controller *TicketController) GetCustomerTickets(ctx *gin.Context) {
+	userId := ctx.Query("userId")
+	if len(userId) == 0 {
+		ctx.JSON(http.StatusBadRequest, "user not found")
+		return
+	}
+	customerTickets, err := controller.ticketService.GetCustomerTickets(userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, mappers.MapCustomerTicketsToResponse(customerTickets))
+}
+
 func (controller *TicketController) validateUser(ctx *gin.Context) *model.User {
 	user, ok := ctx.Value("currentUser").(*model.User)
 	if !ok {
-		controller.logger.Println("Error casting 'currentUser' from context into type model.Customer")
+		controller.logger.Println("Error casting 'currentUser' from context into type model.User")
 		ctx.JSON(http.StatusInternalServerError, errors.New("an unknown error occurred"))
 		return nil
 	}
