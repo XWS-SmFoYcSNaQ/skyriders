@@ -44,3 +44,14 @@ a.active .MuiListItem-root {
 .MuiCardHeader-title {
   font-size: 2.5rem !important;
 }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-gap: 20px;
+}
+
+.error-block {
+  font-size: 16px;
+  color: crimson;
+}

@@ -13,8 +13,10 @@ import Error from './pages/Error';
 import Home from './pages/Home';
 import Mainlayout from './components/layout/Main';
 import Flights from './pages/Flights';
-import Registration from './pages/Registration';
 import Login from './pages/Login';
+import Registration from './pages/Registration';
+import MyTickets from './pages/MyTickets';
+
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,12 @@ const router = createBrowserRouter([
         index: true,
         path: "login",
         element: <Login/>
+      },
+      {
+        index: true, 
+        path: "myTickets",
+        element: <MyTickets/>
+
       }
     ]
   },
