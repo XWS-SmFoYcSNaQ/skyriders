@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Skyriders/controller"
+	"Skyriders/middleware"
 	"Skyriders/service"
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,10 @@ func NewTicketRoute(ticketController *controller.TicketController) *TicketRoute 
 
 func (ticketRoute *TicketRoute) TicketRoute(rg *gin.RouterGroup, userService *service.UserService, enforcer *casbin.Enforcer) {
 	subRouter := rg.Group("/tickets")
-	subRouter.POST("", ticketRoute.ticketController.BuyTickets) // TODO: Return middlewares
-	subRouter.GET("", ticketRoute.ticketController.GetCustomerTickets)
+	subRouter.POST("", middleware.DeserializeUser(userService),
+		middleware.Authorize("tickets", "POST", enforcer),
+		ticketRoute.ticketController.BuyTickets)
+	subRouter.GET("", middleware.DeserializeUser(userService),
+		middleware.Authorize("tickets", "GET", enforcer),
+		ticketRoute.ticketController.GetCustomerTickets)
 }

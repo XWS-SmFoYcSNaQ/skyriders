@@ -24,17 +24,10 @@ func CreateTicketController(logger *log.Logger, ticketService *service.TicketSer
 }
 
 func (controller *TicketController) BuyTickets(ctx *gin.Context) {
-	//user := controller.validateUser(ctx)
-	//if user == nil {
-	//	return
-	//}
-
-	userId := ctx.Query("userId") // TODO: Replace
-	if len(userId) == 0 {
-		ctx.JSON(http.StatusBadRequest, "user not found")
+	user := controller.validateUser(ctx)
+	if user == nil {
 		return
 	}
-	user, _ := controller.ticketService.UserService.GetById(userId)
 
 	buyTicketRequest := contracts.BuyTicketRequest{}
 	err := json.NewDecoder(ctx.Request.Body).Decode(&buyTicketRequest)
@@ -58,22 +51,16 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "Success")
+	ctx.JSON(http.StatusCreated, "Success")
 }
 
 func (controller *TicketController) GetCustomerTickets(ctx *gin.Context) {
-	userId := ctx.Query("userId") // TODO: Replace
-	if len(userId) == 0 {
-		ctx.JSON(http.StatusBadRequest, "user not found")
+	user := controller.validateUser(ctx)
+	if user == nil {
 		return
 	}
 
-	customerTickets, err := controller.ticketService.GetCustomerTickets(userId)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
-	ctx.JSON(http.StatusOK, mappers.MapCustomerTicketsToResponse(customerTickets))
+	ctx.JSON(http.StatusOK, mappers.MapCustomerTicketsToResponse(user))
 }
 
 func (controller *TicketController) validateUser(ctx *gin.Context) *model.User {

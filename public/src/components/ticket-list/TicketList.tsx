@@ -16,7 +16,7 @@ const TicketList = ({ tickets } : TicketListProps) => {
         : (
         <Grid container justifyContent="start" alignItems="center" spacing={5}>
           { tickets.map(t => ( 
-            <Grid item key={t.flightId} xs={12} sm={9} md={7} lg={6}>
+            <Grid item key={t.flightId} xs={12}>
               <SingleTicket ticket={t}/>
             </Grid>
             )) }

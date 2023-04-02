@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, HttpStatusCode } from "axios";
 import FlightForm from "../components/flight-form/FlightForm";
 import FlightList from "../components/flight-list/FlightList";
 import { Box } from "@mui/system";
@@ -57,13 +57,19 @@ const Flights = () => {
     if (!quantity || quantity === 0) {
       return;
     }
-    const buyTicketRequest : BuyTicketRequest = { flightId: activeFlightId, quantity };
+    const buyTicketRequest : BuyTicketRequest = { flightId: activeFlightId, quantity};
     try { 
-      await axios.post(`${process.env.REACT_APP_API}/tickets?userId=6421dbe6ef986c1e2cbbd5bd`, buyTicketRequest)
-      setData((prevData) => {
-        return prevData.map(x => x.id !== activeFlightId ? x : {...x, boughtTickets: x.boughtTickets! + quantity });
-      });
-      toast.success(`Thank you for buying ${quantity} tickets`, { position: toast.POSITION.TOP_CENTER });
+      const res = await axios.post(`tickets`, buyTicketRequest, {
+        headers: { "Accept": "application/json" }
+      })
+      if (res.status === HttpStatusCode.Created) {
+        setData((prevData) => {
+          return prevData.map(x => x.id !== activeFlightId ? x : {...x, boughtTickets: x.boughtTickets! + quantity });
+        });
+        toast.success(`Thank you for buying ${quantity} tickets`, { position: toast.POSITION.TOP_CENTER });
+      } else {
+        toast.error(res.request?.response, { position: toast.POSITION.TOP_CENTER });
+      }
     } catch (err: any) {
       console.log(err)
       toast.error(err.response.data, { position: toast.POSITION.TOP_CENTER });
