@@ -13,7 +13,7 @@ const Registration = () => {
   }
   const onRegistrationSubmit = async (user: User) => {
     try {
-      await axios.post(`${process.env.REACT_APP_API}/auth/register`, user)
+      await axios.post('auth/register', user)
       toast.success('Customer successfully registered', {position: toast.POSITION.BOTTOM_CENTER});
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
