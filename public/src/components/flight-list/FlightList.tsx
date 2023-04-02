@@ -35,6 +35,7 @@ const FlightList = ({ data, onDelete }: Props) => {
               <TableCell>Place Destination</TableCell>
               <TableCell align="right">Place Source</TableCell>
               <TableCell align="right">Ticket Price</TableCell>
+              <TableCell align="right">Total Price</TableCell>
               <TableCell align="right">Date Source</TableCell>
               <TableCell align="right">Date Destination</TableCell>
               <TableCell align="right">Total Tickets</TableCell>
@@ -52,7 +53,10 @@ const FlightList = ({ data, onDelete }: Props) => {
                   {d.placeDestination}
                 </TableCell>
                 <TableCell align="right">{d.placeSource}</TableCell>
-                <TableCell align="right">{d.ticketPrice}</TableCell>
+                <TableCell align="right">{d.ticketPrice}&nbsp;EUR</TableCell>
+                <TableCell align="right">
+                  {d.ticketPrice * d.boughtTickets}&nbsp;EUR
+                </TableCell>
                 <TableCell align="right">
                   {new Date(d.dateSource).toLocaleString()}
                 </TableCell>

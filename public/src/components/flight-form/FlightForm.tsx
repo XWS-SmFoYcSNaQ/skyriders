@@ -54,7 +54,7 @@ const FlightForm = ({ onSubmit }: Props) => {
             setData({
               ...data,
               ticketPrice:
-                e.target.value === "" ? undefined : parseInt(e.target.value),
+                e.target.value === "" ? undefined : parseFloat(e.target.value),
             })
           }
         />
