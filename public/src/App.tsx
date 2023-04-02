@@ -21,32 +21,32 @@ import MyTickets from './pages/MyTickets';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Mainlayout/>,
+    element: <Mainlayout />,
     errorElement: <Error />,
     children: [
       {
         index: true,
-        element: <Home/>,
+        element: <Home />,
       },
       {
         index: true,
         path: "flights",
-        element: <Flights/>
+        element: <Flights />
       },
       {
         index: true,
         path: "register",
-        element: <Registration/>
+        element: <Registration />
       },
       {
         index: true,
         path: "login",
-        element: <Login/>
+        element: <Login />
       },
       {
-        index: true, 
+        index: true,
         path: "myTickets",
-        element: <MyTickets/>
+        element: <MyTickets />
 
       }
     ]
@@ -57,7 +57,7 @@ function App() {
   return (
     <div className="App">
       <RouterProvider router={router} />
-    </div>   
+    </div>
   );
 }
 
