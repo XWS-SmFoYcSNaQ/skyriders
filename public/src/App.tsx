@@ -16,6 +16,7 @@ import Flights from './pages/Flights';
 import Login from './pages/Login';
 import Registration from './pages/Registration';
 import MyTickets from './pages/MyTickets';
+import Unauthorized from './pages/Unauthorized';
 
 
 const router = createBrowserRouter([
@@ -47,8 +48,12 @@ const router = createBrowserRouter([
         index: true,
         path: "myTickets",
         element: <MyTickets />
-
-      }
+      },
+      {
+        index: true,
+        path: "unathorized",
+        element: <Unauthorized />
+      },
     ]
   },
 ]);
