@@ -14,16 +14,49 @@ import MailIcon from '@mui/icons-material/Mail';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LoginIcon from '@mui/icons-material/Login';
 import HomeIcon from '@mui/icons-material/Home';
-import { Outlet, NavLink  } from 'react-router-dom';
+import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const drawerWidth = 240;
 
 interface NavItem {
-  route: string;  
+  route: string;
   text: string;
 }
 
 const MainLayout = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  let navigate = useNavigate();
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await axios.get('auth/check');
+      if (response.status === 200) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const logout = async () => {
+    const response = await axios.get('auth/logout', { withCredentials: true })
+    if (response.status === 200) {
+      setIsAuthenticated(false)
+      axios.defaults.headers.common['Authorization'] = ""
+      navigate('/login');
+    }
+  };
+
   const upperNavItems: NavItem[] = [
     {
       route: '/',
@@ -37,14 +70,18 @@ const MainLayout = () => {
 
   const lowerNavItems: NavItem[] = [
     {
-      route: '/login',
-      text: 'Login'
-    },
-    {
       route: '/register',
       text: 'Register'
+    },
+    {
+      route: '/login',
+      text: 'Login'
     }
   ];
+
+  const filteredLowerNavItems = isAuthenticated
+    ? lowerNavItems.filter(item => item.route !== '/login' && item.route !== '/register')
+    : lowerNavItems;
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -82,7 +119,7 @@ const MainLayout = () => {
                   <ListItemIcon>
                     {index % 2 === 0 ? <HomeIcon /> : <MailIcon />}
                   </ListItemIcon>
-                    {navItem.text}
+                  {navItem.text}
                 </ListItemButton>
               </ListItem>
             </NavLink>
@@ -91,7 +128,7 @@ const MainLayout = () => {
         <Divider />
         {/* Lower nav items */}
         <List>
-          {lowerNavItems.map((navItem, index) => (
+          {filteredLowerNavItems.map((navItem, index) => (
             <NavLink to={navItem.route} key={navItem.route} >
               <ListItem disablePadding>
                 <ListItemButton>
@@ -104,12 +141,13 @@ const MainLayout = () => {
             </NavLink>
           ))}
         </List>
+        {isAuthenticated && <Button onClick={logout}>Logout</Button>}
       </Drawer>
       <Box
         component="main"
-        sx={{ flexGrow: 1, bgcolor: 'background.default', py: 8, overflowX: 'visible'}}
+        sx={{ flexGrow: 1, bgcolor: 'background.default', py: 8, overflowX: 'visible' }}
       >
-        <Outlet/>
+        <Outlet />
       </Box>
     </Box>
   );

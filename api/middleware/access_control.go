@@ -8,6 +8,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 func Authorize(obj string, act string, enforcer *casbin.Enforcer) gin.HandlerFunc {
@@ -47,13 +48,19 @@ func Authorize(obj string, act string, enforcer *casbin.Enforcer) gin.HandlerFun
 
 func Anonymous() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		accessToken, err := ctx.Cookie("access_token")
-		if err != nil {
+		var accessToken string
+
+		authorizationHeader := ctx.Request.Header.Get("Authorization")
+		fields := strings.Fields(authorizationHeader)
+
+		if len(fields) != 0 && fields[0] == "Bearer" {
+			accessToken = fields[1]
+		} else {
 			ctx.Next()
 		}
 
 		config, _ := config2.LoadConfig(".")
-		_, err = utils.ValidateToken(accessToken, config.AccessTokenPublicKey)
+		_, err := utils.ValidateToken(accessToken, config.AccessTokenPublicKey)
 		if err == nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "You are already logged in"})
 			return
