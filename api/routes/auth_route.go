@@ -21,6 +21,7 @@ func (ar *AuthRoute) AuthRoute(rg *gin.RouterGroup, authService *service.UserSer
 	router.POST("/register", middleware.Anonymous(), ar.authController.Register(enforcer))
 	router.POST("/login", middleware.Anonymous(), ar.authController.Login)
 	router.GET("/refresh", ar.authController.RefreshAccessToken)
+	router.GET("/check", ar.authController.CheckAuth)
 	router.GET("/logout", middleware.DeserializeUser(authService),
 		middleware.Authorize("logout", "GET", enforcer), ar.authController.Logout)
 }
