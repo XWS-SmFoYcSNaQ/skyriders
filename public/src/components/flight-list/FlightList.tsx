@@ -9,13 +9,20 @@ import {
   Button,
 } from "@mui/material";
 import { Flight } from "../../model/flight";
+import { Stack } from "@mui/system";
+import { useState } from "react";
+import TicketQuantity from "../ticket-quantity/TicketQuantity";
 
 interface Props {
   data: Flight[];
   onDelete: (flight: Flight) => void;
+  buyTickets: (quantity: number | undefined) => void;
+  setActiveFlightId: (id: string) => void;
 }
 
-const FlightList = ({ data, onDelete }: Props) => {
+const FlightList = ({ data, onDelete, buyTickets, setActiveFlightId }: Props) => {
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+
   if (!data || data.length === 0) {
     return (
       <>
@@ -25,9 +32,15 @@ const FlightList = ({ data, onDelete }: Props) => {
     );
   }
 
+  const showModal = (show: boolean) => {
+    setShowQuantityModal(show)
+  }
+  
+
   return (
     <>
       <h3>Flights</h3>
+      <TicketQuantity isOpen={showQuantityModal} showModal={showModal} buyTickets={buyTickets} />
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -40,7 +53,7 @@ const FlightList = ({ data, onDelete }: Props) => {
               <TableCell align="right">Date Destination</TableCell>
               <TableCell align="right">Total Tickets</TableCell>
               <TableCell align="right">Bought Tickets</TableCell>
-              <TableCell align="right">Action</TableCell>
+              <TableCell align="center">Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -66,13 +79,24 @@ const FlightList = ({ data, onDelete }: Props) => {
                 <TableCell align="right">{d.totalTickets}</TableCell>
                 <TableCell align="right">{d.boughtTickets}</TableCell>
                 <TableCell align="right">
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => onDelete(d)}
-                  >
-                    Delete
-                  </Button>
+                  <Stack direction="row">
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      sx={{ mr: 3}}
+                      onClick={() => onDelete(d)}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      sx={{ whiteSpace: 'nowrap'}}
+                      onClick={() => { setActiveFlightId(d.id); showModal(true) }}
+                    >
+                      <span>Buy ticket</span>
+                    </Button>
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}
