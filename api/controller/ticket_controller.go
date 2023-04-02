@@ -47,25 +47,20 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 	err = controller.ticketService.BuyTickets(flightId, user, buyTicketRequest.Quantity)
 	if err != nil {
 		controller.logger.Println(err.Error())
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "Success")
+	ctx.JSON(http.StatusCreated, "Success")
 }
 
 func (controller *TicketController) GetCustomerTickets(ctx *gin.Context) {
-	userId := ctx.Query("userId")
-	if len(userId) == 0 {
-		ctx.JSON(http.StatusBadRequest, "user not found")
+	user := controller.validateUser(ctx)
+	if user == nil {
 		return
 	}
-	customerTickets, err := controller.ticketService.GetCustomerTickets(userId)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
-	ctx.JSON(http.StatusOK, mappers.MapCustomerTicketsToResponse(customerTickets))
+
+	ctx.JSON(http.StatusOK, mappers.MapCustomerTicketsToResponse(user))
 }
 
 func (controller *TicketController) validateUser(ctx *gin.Context) *model.User {

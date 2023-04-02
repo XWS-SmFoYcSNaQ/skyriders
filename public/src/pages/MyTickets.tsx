@@ -11,11 +11,10 @@ const MyTickets = () => {
   const ticketsUrl = 'tickets';
 
   const fetchMyTickets = useCallback(async() => {
-    const userId = '6421dbe6ef986c1e2cbbd5bd'; // TODO: Remove after login is implemented
     setIsPending(true);
     setError(null);
     try {
-      const res = await axios.get<CustomerTicket[]>(`${ticketsUrl}?userId=${userId}`, {
+      const res = await axios.get<CustomerTicket[]>(ticketsUrl, {
         "headers": {
           "Accept": "application/json"
         }

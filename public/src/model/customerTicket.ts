@@ -6,4 +6,5 @@ export default interface CustomerTicket {
   flightPlaceDestination: string;
   flightTicketPrice: number;
   quantity: number;
+  fullName: string;
 }

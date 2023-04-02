@@ -92,6 +92,9 @@ func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
 	if hasPolicy, _ := enforcer.AddPolicy("customer", "tickets", "POST"); !hasPolicy {
 		_, _ = enforcer.AddPolicy("customer", "tickets", "POST")
 	}
+	if hasPolicy, _ := enforcer.AddPolicy("customer", "tickets", "GET"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("customer", "tickets", "GET")
+	}
 }
 
 func main() {
