@@ -4,73 +4,72 @@ import (
 	"Skyriders/model"
 	"Skyriders/repo"
 	"Skyriders/service"
-	"context"
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/gin-gonic/gin"
 )
 
 type KeyProduct struct{}
 
 type FlightController struct {
 	logger  *log.Logger
-	router  *mux.Router
 	repo    *repo.FlightRepo
 	service *service.FlightService
 }
 
-func CreateFlightController(l *log.Logger, r *mux.Router, repo *repo.FlightRepo, s *service.FlightService) *FlightController {
-	fc := FlightController{l, r, repo, s}
-	fc.registerRoutes()
-	return &fc
+func CreateFlightController(logger *log.Logger, repo *repo.FlightRepo, service *service.FlightService) *FlightController {
+	return &FlightController{logger: logger, repo: repo, service: service}
 }
 
-func (fc FlightController) registerRoutes() {
-	getRouter := fc.router.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", fc.getAllFlights)
-
-	postRouter := fc.router.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", fc.postFlight)
-	postRouter.Use(fc.middlewareFlightDeserialization)
-}
-
-func (fc FlightController) getAllFlights(rw http.ResponseWriter, h *http.Request) {
-	flights, err := fc.repo.GetAll()
+func (fc *FlightController) GetAllFlights(ctx *gin.Context) {
+	filters := ctx.Request.URL.Query()
+	flights, err := fc.repo.GetAll(filters)
 
 	if err != nil {
-		fc.logger.Print("Database exception: ", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
+		fc.logger.Println("Unable to get flights:", err)
 	}
 
-	if flights == nil {
+	ctx.JSON(http.StatusOK, flights)
+}
+
+func (fc *FlightController) PostFlight(ctx *gin.Context) {
+	flight, exists := ctx.Get("flight")
+	if !exists {
+		fc.logger.Println(exists)
+		ctx.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	err = flights.ToJSON(rw)
-	if err != nil {
-		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
-		fc.logger.Fatal("Unable to convert to json :", err)
+	flightObj, ok := flight.(*model.Flight)
+	if !ok {
+		fc.logger.Println(ok)
+		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+
+	err := fc.repo.Create(flightObj)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusCreated, gin.H{"status:": "success"})
 }
 
-func (fc *FlightController) postFlight(rw http.ResponseWriter, h *http.Request) {
-	flight := h.Context().Value(KeyProduct{}).(*model.Flight)
-	fc.repo.Insert(flight)
-	rw.WriteHeader(http.StatusCreated)
-}
+func (fc *FlightController) DeleteFlight(ctx *gin.Context) {
+	id, err := primitive.ObjectIDFromHex(ctx.Param("id"))
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 
-func (fc *FlightController) middlewareFlightDeserialization(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
-		flight := &model.Flight{}
-		err := flight.FromJSON(h.Body)
-		if err != nil {
-			http.Error(rw, "Unable to decode json", http.StatusBadRequest)
-			fc.logger.Fatal(err)
-			return
-		}
-		ctx := context.WithValue(h.Context(), KeyProduct{}, flight)
-		h = h.WithContext(ctx)
-		next.ServeHTTP(rw, h)
-	})
+	err = fc.repo.Delete(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusNoContent, gin.H{"status:": "success"})
 }

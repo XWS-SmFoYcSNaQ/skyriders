@@ -4,7 +4,7 @@ services:
       context: ./api/.
       dockerfile: Dockerfile
     ports:
-      - "9000:8080"
+      - "9000:9000"
     restart: always
     container_name: "api_container"
     environment:
@@ -20,6 +20,7 @@ services:
   mongo:
     image: mongo
     restart: always
+    command: mongod --quiet --logpath /dev/null
     ports:
       - 9100:27017
     container_name: "mongo_container"
