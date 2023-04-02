@@ -16,39 +16,44 @@ import Flights from './pages/Flights';
 import Login from './pages/Login';
 import Registration from './pages/Registration';
 import MyTickets from './pages/MyTickets';
+import Unauthorized from './pages/Unauthorized';
 
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Mainlayout/>,
+    element: <Mainlayout />,
     errorElement: <Error />,
     children: [
       {
         index: true,
-        element: <Home/>,
+        element: <Home />,
       },
       {
         index: true,
         path: "flights",
-        element: <Flights/>
+        element: <Flights />
       },
       {
         index: true,
         path: "register",
-        element: <Registration/>
+        element: <Registration />
       },
       {
         index: true,
         path: "login",
-        element: <Login/>
+        element: <Login />
       },
       {
-        index: true, 
+        index: true,
         path: "myTickets",
-        element: <MyTickets/>
-
-      }
+        element: <MyTickets />
+      },
+      {
+        index: true,
+        path: "unathorized",
+        element: <Unauthorized />
+      },
     ]
   },
 ]);
@@ -57,7 +62,7 @@ function App() {
   return (
     <div className="App">
       <RouterProvider router={router} />
-    </div>   
+    </div>
   );
 }
 

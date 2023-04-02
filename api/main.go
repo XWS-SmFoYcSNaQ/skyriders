@@ -79,6 +79,9 @@ func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
 	if hasPolicy, _ := enforcer.AddPolicy("customer", "logout", "GET"); !hasPolicy {
 		_, _ = enforcer.AddPolicy("customer", "logout", "GET")
 	}
+	if hasPolicy, _ := enforcer.AddPolicy("admin", "logout", "GET"); !hasPolicy {
+		_, _ = enforcer.AddPolicy("admin", "logout", "GET")
+	}
 
 	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "POST"); !hasPolicy {
 		_, _ = enforcer.AddPolicy("admin", "flight", "POST")
