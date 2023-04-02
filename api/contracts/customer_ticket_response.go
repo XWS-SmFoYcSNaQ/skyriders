@@ -8,4 +8,5 @@ type CustomerTicketResponse struct {
 	FlightPlaceDestination string  `json:"flightPlaceDestination"`
 	FlightTicketPrice      float32 `json:"flightTicketPrice"`
 	Quantity               int     `json:"quantity"`
+	FullName               string  `json:"fullName"`
 }
