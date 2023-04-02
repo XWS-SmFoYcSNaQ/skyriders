@@ -1,6 +1,6 @@
 package contracts
 
 type BuyTicketRequest struct {
-	FlightId string
-	Quantity int
+	FlightId string `json:"flightId"`
+	Quantity int    `json:"quantity"`
 }

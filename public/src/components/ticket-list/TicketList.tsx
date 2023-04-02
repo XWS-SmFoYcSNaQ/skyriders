@@ -11,7 +11,7 @@ const TicketList = ({ tickets } : TicketListProps) => {
   return (
     <Box>
       <Typography variant="h3" sx={{ pt: 2, pb: 4, textAlign:'center'}}>My Tickets</Typography>
-      { tickets === undefined 
+      { tickets === undefined || tickets.length === 0 
         ? <p>No tickets</p> 
         : (
         <Grid container justifyContent="start" alignItems="center" spacing={5}>

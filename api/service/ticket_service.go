@@ -12,11 +12,11 @@ type TicketService struct {
 	logger        *log.Logger
 	ticketRepo    *repo.TicketRepo
 	flightService *FlightService
-	userService   *UserService
+	UserService   *UserService
 }
 
-func CreateTicketService(logger *log.Logger, ticketRepo *repo.TicketRepo, flightService *FlightService, userService *UserService) *TicketService {
-	return &TicketService{logger, ticketRepo, flightService, userService}
+func CreateTicketService(logger *log.Logger, ticketRepo *repo.TicketRepo, flightService *FlightService, UserService *UserService) *TicketService {
+	return &TicketService{logger, ticketRepo, flightService, UserService}
 }
 
 func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, user *model.User, quantity int) error {
@@ -47,7 +47,7 @@ func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, user
 		user.Customer.Tickets = append(user.Customer.Tickets, *customerTicket)
 	}
 
-	err = ticketService.userService.Update(user.ID, *user)
+	err = ticketService.UserService.Update(user.ID, *user)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (ticketService *TicketService) BuyTickets(flightId primitive.ObjectID, user
 }
 
 func (ticketService *TicketService) GetCustomerTickets(userId string) ([]model.CustomerTicket, error) {
-	user, err := ticketService.userService.GetById(userId) // TODO: Replace
+	user, err := ticketService.UserService.GetById(userId) // TODO: Replace
 	if err != nil {
 		return nil, errors.New("error getting user")
 	}

@@ -24,10 +24,17 @@ func CreateTicketController(logger *log.Logger, ticketService *service.TicketSer
 }
 
 func (controller *TicketController) BuyTickets(ctx *gin.Context) {
-	user := controller.validateUser(ctx)
-	if user == nil {
+	//user := controller.validateUser(ctx)
+	//if user == nil {
+	//	return
+	//}
+
+	userId := ctx.Query("userId") // TODO: Replace
+	if len(userId) == 0 {
+		ctx.JSON(http.StatusBadRequest, "user not found")
 		return
 	}
+	user, _ := controller.ticketService.UserService.GetById(userId)
 
 	buyTicketRequest := contracts.BuyTicketRequest{}
 	err := json.NewDecoder(ctx.Request.Body).Decode(&buyTicketRequest)
@@ -47,7 +54,7 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 	err = controller.ticketService.BuyTickets(flightId, user, buyTicketRequest.Quantity)
 	if err != nil {
 		controller.logger.Println(err.Error())
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -55,11 +62,12 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 }
 
 func (controller *TicketController) GetCustomerTickets(ctx *gin.Context) {
-	userId := ctx.Query("userId")
+	userId := ctx.Query("userId") // TODO: Replace
 	if len(userId) == 0 {
 		ctx.JSON(http.StatusBadRequest, "user not found")
 		return
 	}
+
 	customerTickets, err := controller.ticketService.GetCustomerTickets(userId)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err)
