@@ -18,7 +18,7 @@ const Flights = () => {
   const fetchData = useCallback(async () => {
     const query = createQueryObject(filters);
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API}/flight`, {
+      const res = await axios.get('flight', {
         params: query,
       });
       setData(res.data);
@@ -33,7 +33,7 @@ const Flights = () => {
 
   const onFlightSubmit = async (flight: Flight) => {
     try {
-      await axios.post(`${process.env.REACT_APP_API}/flight`, flight);
+      await axios.post('flight', flight);
       fetchData();
     } catch (err) {
       console.log(err);
@@ -42,7 +42,7 @@ const Flights = () => {
 
   const onFlightDelete = async (flight: Flight) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API}/flight/${flight.id}`);
+      await axios.delete(`flight/${flight.id}`);
       fetchData();
     } catch (err) {
       console.log(err);

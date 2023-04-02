@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/casbin/casbin/v2"
@@ -117,14 +118,10 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("access_token", accessToken, config.AccessTokenMaxAge*60,
-		"/", "localhost", false, true)
 	ctx.SetCookie("refresh_token", refreshToken, config.RefreshTokenMaxAge*60,
 		"/", "localhost", false, true)
-	ctx.SetCookie("logged_in", "true", config.AccessTokenMaxAge*60,
-		"/", "localhost", false, false)
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken}) //delete accessToken from the response after debugging
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken})
 }
 
 func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
@@ -155,18 +152,34 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("access_token", accessToken, config.AccessTokenMaxAge*60,
-		"/", "localhost", false, true)
-	ctx.SetCookie("logged_in", "true", config.AccessTokenMaxAge*60,
-		"/", "localhost", false, false)
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken}) //delete accessToken from the response after debugging
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken})
 }
 
 func (ac *AuthController) Logout(ctx *gin.Context) {
-	ctx.SetCookie("access_token", "", -1, "/", "localhost", false, true)
 	ctx.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
-	ctx.SetCookie("logged_in", "", -1, "/", "localhost", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
+}
+
+func (ac *AuthController) CheckAuth(ctx *gin.Context) {
+	var accessToken string
+
+	authorizationHeader := ctx.Request.Header.Get("Authorization")
+	fields := strings.Fields(authorizationHeader)
+
+	if len(fields) != 0 && fields[0] == "Bearer" {
+		accessToken = fields[1]
+	} else {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "unauthenticated"})
+		return
+	}
+
+	config, _ := config2.LoadConfig(".")
+	_, err := utils.ValidateToken(accessToken, config.AccessTokenPublicKey)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "unauthenticated"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "authenticated"})
 }

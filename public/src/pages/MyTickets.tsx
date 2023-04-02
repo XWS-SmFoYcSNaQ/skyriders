@@ -8,7 +8,7 @@ const MyTickets = () => {
   const [myTickets, setMyTickets] = useState<CustomerTicket[]>();
   const [error, setError] = useState<any>(null);
   const [isPending, setIsPending] = useState(true);
-  const ticketsUrl = `${process.env.REACT_APP_API}/tickets`;
+  const ticketsUrl = 'tickets';
 
   const fetchMyTickets = useCallback(async() => {
     const userId = '6421dbe6ef986c1e2cbbd5bd'; // TODO: Remove after login is implemented
