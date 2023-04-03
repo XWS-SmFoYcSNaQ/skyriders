@@ -121,7 +121,7 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 	ctx.SetCookie("refresh_token", refreshToken, config.RefreshTokenMaxAge*60,
 		"/", "localhost", false, true)
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken})
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken, "roles": user.Role})
 }
 
 func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
@@ -175,11 +175,13 @@ func (ac *AuthController) CheckAuth(ctx *gin.Context) {
 	}
 
 	config, _ := config2.LoadConfig(".")
-	_, err := utils.ValidateToken(accessToken, config.AccessTokenPublicKey)
+	sub, err := utils.ValidateToken(accessToken, config.AccessTokenPublicKey)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "unauthenticated"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "authenticated"})
+	user, err := ac.service.GetById(sub.(string))
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "authenticated", "roles": user.Role})
 }

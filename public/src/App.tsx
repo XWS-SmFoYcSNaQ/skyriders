@@ -17,6 +17,8 @@ import Login from './pages/Login';
 import Registration from './pages/Registration';
 import MyTickets from './pages/MyTickets';
 import Unauthorized from './pages/Unauthorized';
+import RequireAuth from './components/require-auth/RequireAuth';
+import { AuthProvider } from './context/AuthProvider';
 
 
 const router = createBrowserRouter([
@@ -31,11 +33,6 @@ const router = createBrowserRouter([
       },
       {
         index: true,
-        path: "flights",
-        element: <Flights />
-      },
-      {
-        index: true,
         path: "register",
         element: <Registration />
       },
@@ -46,14 +43,29 @@ const router = createBrowserRouter([
       },
       {
         index: true,
-        path: "myTickets",
-        element: <MyTickets />
-      },
-      {
-        index: true,
         path: "unathorized",
         element: <Unauthorized />
       },
+      {
+        element: <RequireAuth allowedRoles={[0]} />,
+        children: [
+          {
+            index: true,
+            path: "myTickets",
+            element: <MyTickets />
+          }
+        ]
+      },
+      {
+        element: <RequireAuth allowedRoles={[0, 1]} />,
+        children: [
+          {
+            index: true,
+            path: "flights",
+            element: <Flights />
+          }
+        ]
+      }
     ]
   },
 ]);
@@ -61,7 +73,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <div className="App">
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </div>
   );
 }

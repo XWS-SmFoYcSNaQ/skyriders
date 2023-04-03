@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Modal, Stack } from "@mui/material";
 import { useState } from "react";
 
 interface TicketQuantityProps {
