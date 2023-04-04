@@ -18,9 +18,10 @@ interface Props {
   onDelete: (flight: Flight) => void;
   buyTickets: (quantity: number | undefined) => void;
   setActiveFlightId: (id: string) => void;
+  user?: any;
 }
 
-const FlightList = ({ data, onDelete, buyTickets, setActiveFlightId }: Props) => {
+const FlightList = ({ data, onDelete, buyTickets, setActiveFlightId, user }: Props) => {
   const [showQuantityModal, setShowQuantityModal] = useState(false);
 
   if (!data || data.length === 0) {
@@ -35,7 +36,7 @@ const FlightList = ({ data, onDelete, buyTickets, setActiveFlightId }: Props) =>
   const showModal = (show: boolean) => {
     setShowQuantityModal(show)
   }
-  
+
 
   return (
     <>
@@ -66,9 +67,9 @@ const FlightList = ({ data, onDelete, buyTickets, setActiveFlightId }: Props) =>
                   {d.placeDestination}
                 </TableCell>
                 <TableCell align="right">{d.placeSource}</TableCell>
-                <TableCell align="right">{d.ticketPrice}&nbsp;EUR</TableCell>
+                <TableCell align="right">{d.ticketPrice}€</TableCell>
                 <TableCell align="right">
-                  {d.ticketPrice * d.boughtTickets}&nbsp;EUR
+                  {d.ticketPrice * d.boughtTickets}€
                 </TableCell>
                 <TableCell align="right">
                   {new Date(d.dateSource).toLocaleString()}
@@ -80,18 +81,20 @@ const FlightList = ({ data, onDelete, buyTickets, setActiveFlightId }: Props) =>
                 <TableCell align="right">{d.boughtTickets}</TableCell>
                 <TableCell align="right">
                   <Stack direction="row">
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      sx={{ mr: 3}}
-                      onClick={() => onDelete(d)}
-                    >
-                      Delete
-                    </Button>
+                    {user?.includes(1) && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        sx={{ mr: 3 }}
+                        onClick={() => onDelete(d)}
+                      >
+                        Delete
+                      </Button>
+                    )}
                     <Button
                       variant="outlined"
                       color="primary"
-                      sx={{ whiteSpace: 'nowrap'}}
+                      sx={{ whiteSpace: 'nowrap' }}
                       onClick={() => { setActiveFlightId(d.id); showModal(true) }}
                     >
                       <span>Buy ticket</span>

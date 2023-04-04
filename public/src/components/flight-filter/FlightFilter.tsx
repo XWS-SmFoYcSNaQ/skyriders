@@ -1,6 +1,7 @@
 import { TextField, Box, Button } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
+import { parseDateToDatetimeLocal } from "../../utils/utils";
 
 interface Props {
   onSubmit: (filters: any) => void;
@@ -8,6 +9,10 @@ interface Props {
 
 const FlightFilter = ({ onSubmit }: Props) => {
   const [filters, setFilters] = useState<any>({});
+
+  useEffect(() => {
+    setFilters({...filters, dateSource: parseDateToDatetimeLocal(new Date()), dateDestination: parseDateToDatetimeLocal(new Date())});
+  }, [])
 
   const handleSubmit = (e: any) => {
     e.preventDefault();

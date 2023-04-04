@@ -74,7 +74,7 @@ function App() {
   return (
     <div className="App">
       <AuthProvider>
-        <RouterProvider router={router} />
+          <RouterProvider router={router} />
       </AuthProvider>
     </div>
   );

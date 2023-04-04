@@ -20,7 +20,8 @@ const Login = () => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${respData['access_token']}`
         const roles = [respData['roles']]
         const user = data.email
-        setAuth({ user, roles })
+        const isAuthenticated = true
+        setAuth({ user, roles, isAuthenticated })
         navigate(from, { replace: true });
         toast.success('Successfully logged in', { position: toast.POSITION.BOTTOM_CENTER });
       } else {

@@ -7,7 +7,7 @@ import (
 )
 
 func MapCustomerTicketToResponse(ticket *model.CustomerTicket, user *model.User) *contracts.CustomerTicketResponse {
-	dateFormat := "2001-01-01 15:15"
+	dateFormat := "2006-01-02 15:04"
 	return &contracts.CustomerTicketResponse{
 		FlightId:               ticket.FlightId.Hex(),
 		FlightDateSource:       ticket.FlightDateDestination.Time().Format(dateFormat),

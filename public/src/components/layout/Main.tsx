@@ -16,7 +16,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import useAuth from "../../hooks/useAuth";
@@ -27,38 +26,22 @@ interface NavItem {
   route: string;
   text: string;
   icon: JSX.Element;
+  props?: object;
 }
 
 const MainLayout = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { auth, setAuth } = useAuth();
+  const isAuthenticated = auth.isAuthenticated
 
   let navigate = useNavigate();
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await axios.get('auth/check');
-      if (response.status === 200) {
-        setIsAuthenticated(true);
-        const user = 'logged'
-        const roles = [response.data['roles']]
-        setAuth({ user, roles })
-      } else {
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
 
   const logout = async () => {
     const response = await axios.get('auth/logout', { withCredentials: true })
     if (response.status === 200) {
-      setIsAuthenticated(false)
+      const user = null
+      const roles = null
+      const isAuthenticated = false
+      setAuth({ user, roles, isAuthenticated })
       axios.defaults.headers.common['Authorization'] = ""
       navigate('/login');
     }
@@ -76,7 +59,8 @@ const MainLayout = () => {
     {
       route: '/flights',
       text: 'Flights',
-      icon: <FlightTakeoffIcon />
+      icon: <FlightTakeoffIcon />,
+      props: auth?.roles
     }
   ];
 
@@ -84,7 +68,8 @@ const MainLayout = () => {
     {
       route: '/flights',
       text: 'Flights',
-      icon: <FlightTakeoffIcon />
+      icon: <FlightTakeoffIcon />,
+      props: auth?.roles
     },
     {
       route: "/myTickets",
@@ -148,7 +133,7 @@ const MainLayout = () => {
         {/* Upper nav items */}
         <List>
           {upperNavItems.map((navItem, index) => (
-            <NavLink to={navItem.route} key={navItem.route}>
+            <NavLink to={navItem.route} key={navItem.route} state={{from: navItem.props}}>
               <ListItem disablePadding>
                 <ListItemButton>
                   <ListItemIcon>

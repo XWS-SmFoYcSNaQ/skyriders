@@ -20,7 +20,7 @@ const LoginForm = ({ onSubmit }: Props) => {
   };
 
   return (
-<ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
