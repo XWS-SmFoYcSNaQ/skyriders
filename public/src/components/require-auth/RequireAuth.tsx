@@ -9,7 +9,7 @@ const RequireAuth = ({ allowedRoles }: any) => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(true)
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = async (retryCount = 0) => {
     try {
       const response = await axios.get('auth/check');
       if (response.status === 200) {
@@ -19,10 +19,15 @@ const RequireAuth = ({ allowedRoles }: any) => {
         setAuth({ user, roles, isAuthenticated });
         setIsLoading(false);
       } else {
-        const user = null
-        const roles = null
-        const isAuthenticated = false
-        setAuth({ user, roles, isAuthenticated })
+        if (retryCount < 2) {
+          await checkAuthStatus(retryCount + 1);
+        } else {
+          const user = null
+          const roles = null
+          const isAuthenticated = false
+          setAuth({ user, roles, isAuthenticated })
+          setIsLoading(false);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -33,8 +38,6 @@ const RequireAuth = ({ allowedRoles }: any) => {
   useEffect(() => {
     checkAuthStatus();
   }, [])
-
-  console.log(auth, location)
 
   return (
     <>

@@ -19,6 +19,7 @@ import MyTickets from './pages/MyTickets';
 import Unauthorized from './pages/Unauthorized';
 import RequireAuth from './components/require-auth/RequireAuth';
 import { AuthProvider } from './context/AuthProvider';
+import RequireUnAuth from './components/require-unauth/RequireUnauth';
 
 
 const router = createBrowserRouter([
@@ -28,18 +29,23 @@ const router = createBrowserRouter([
     errorElement: <Error />,
     children: [
       {
+        element: <RequireUnAuth />,
+        children: [
+          {
+            index: true,
+            path: "register",
+            element: <Registration />
+          },
+          {
+            index: true,
+            path: "login",
+            element: <Login />
+          }
+        ]
+      },
+      {
         index: true,
         element: <Home />,
-      },
-      {
-        index: true,
-        path: "register",
-        element: <Registration />
-      },
-      {
-        index: true,
-        path: "login",
-        element: <Login />
       },
       {
         index: true,
@@ -74,7 +80,7 @@ function App() {
   return (
     <div className="App">
       <AuthProvider>
-          <RouterProvider router={router} />
+        <RouterProvider router={router} />
       </AuthProvider>
     </div>
   );
