@@ -69,31 +69,49 @@ func initEnforcer(logger *log.Logger, mongoUri string) *casbin.Enforcer {
 
 func configurePolicies(enforcer *casbin.Enforcer, logger *log.Logger) {
 
-	if hasPolicy, _ := enforcer.AddGroupingPolicy("6425bd9edb1ff9554c5621da", "admin"); !hasPolicy {
+	if hasPolicy := enforcer.HasGroupingPolicy("6425bd9edb1ff9554c5621da", "admin"); !hasPolicy {
 		_, err := enforcer.AddGroupingPolicy("6425bd9edb1ff9554c5621da", "admin")
 		if err != nil {
 			logger.Println("Failed to add admin group policy")
 		}
 	}
 
-	if hasPolicy, _ := enforcer.AddPolicy("customer", "logout", "GET"); !hasPolicy {
-		_, _ = enforcer.AddPolicy("customer", "logout", "GET")
+	if hasPolicy := enforcer.HasPolicy("customer", "logout", "GET"); !hasPolicy {
+		_, err := enforcer.AddPolicy("customer", "logout", "GET")
+		if err != nil {
+			logger.Println("Failed to add logout policy for customers [GET]")
+		}
 	}
-	if hasPolicy, _ := enforcer.AddPolicy("admin", "logout", "GET"); !hasPolicy {
-		_, _ = enforcer.AddPolicy("admin", "logout", "GET")
+	if hasPolicy := enforcer.HasPolicy("admin", "logout", "GET"); !hasPolicy {
+		_, err := enforcer.AddPolicy("admin", "logout", "GET")
+		if err != nil {
+			logger.Println("Failed to add logout policy for admins [GET]")
+		}
 	}
 
-	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "POST"); !hasPolicy {
-		_, _ = enforcer.AddPolicy("admin", "flight", "POST")
+	if hasPolicy := enforcer.HasPolicy("admin", "flight", "POST"); !hasPolicy {
+		_, err := enforcer.AddPolicy("admin", "flight", "POST")
+		if err != nil {
+			logger.Println("Failed to add flight policy for admins [POST]")
+		}
 	}
-	if hasPolicy, _ := enforcer.AddPolicy("admin", "flight", "DELETE"); !hasPolicy {
-		_, _ = enforcer.AddPolicy("admin", "flight", "DELETE")
+	if hasPolicy := enforcer.HasPolicy("admin", "flight", "DELETE"); !hasPolicy {
+		_, err := enforcer.AddPolicy("admin", "flight", "DELETE")
+		if err != nil {
+			logger.Println("Failed to add flight policy for admins [DELETE]")
+		}
 	}
-	if hasPolicy, _ := enforcer.AddPolicy("customer", "tickets", "POST"); !hasPolicy {
-		_, _ = enforcer.AddPolicy("customer", "tickets", "POST")
+	if hasPolicy := enforcer.HasPolicy("customer", "tickets", "POST"); !hasPolicy {
+		_, err := enforcer.AddPolicy("customer", "tickets", "POST")
+		if err != nil {
+			logger.Println("Failed to add tickets policy for customers [POST]")
+		}
 	}
-	if hasPolicy, _ := enforcer.AddPolicy("customer", "tickets", "GET"); !hasPolicy {
-		_, _ = enforcer.AddPolicy("customer", "tickets", "GET")
+	if hasPolicy := enforcer.HasPolicy("customer", "tickets", "GET"); !hasPolicy {
+		_, err := enforcer.AddPolicy("customer", "tickets", "GET")
+		if err != nil {
+			logger.Println("Failed to add tickets policy for customers [GET]")
+		}
 	}
 }
 

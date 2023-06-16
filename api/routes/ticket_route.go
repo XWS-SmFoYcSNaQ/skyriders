@@ -18,10 +18,8 @@ func NewTicketRoute(ticketController *controller.TicketController) *TicketRoute 
 
 func (ticketRoute *TicketRoute) TicketRoute(rg *gin.RouterGroup, userService *service.UserService, enforcer *casbin.Enforcer) {
 	subRouter := rg.Group("/tickets")
-	subRouter.POST("", middleware.DeserializeUser(userService),
-		middleware.Authorize("tickets", "POST", enforcer),
+	subRouter.POST("", middleware.AuthorizeTickets("POST", enforcer, userService),
 		ticketRoute.ticketController.BuyTickets)
-	subRouter.GET("", middleware.DeserializeUser(userService),
-		middleware.Authorize("tickets", "GET", enforcer),
+	subRouter.GET("", middleware.AuthorizeTickets("GET", enforcer, userService),
 		ticketRoute.ticketController.GetCustomerTickets)
 }

@@ -17,7 +17,7 @@ func InitializeAllControllers(router *gin.RouterGroup, logger *log.Logger, datab
 	userService := service.CreateUserService(logger, userRepo)
 	userController := *controller.CreateUserController(logger, userRepo, userService)
 	userRoutes := routes.NewUserRoute(userController)
-	userRoutes.UserRoute(router)
+	userRoutes.UserRoute(router, userService, enforcer)
 
 	flightRepo := repo.CreateFlightRepo(logger, database.Collection("flights"))
 	flightService := service.CreateFlightService(logger, flightRepo)

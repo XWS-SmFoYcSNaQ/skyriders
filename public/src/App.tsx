@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Registration from './pages/Registration';
 import MyTickets from './pages/MyTickets';
 import Unauthorized from './pages/Unauthorized';
+import ApiKey from './pages/ApiKey';
 
 
 const router = createBrowserRouter([
@@ -54,6 +55,11 @@ const router = createBrowserRouter([
         path: "unathorized",
         element: <Unauthorized />
       },
+      {
+        index: true,
+        path: "apikey",
+        element: <ApiKey />
+      }
     ]
   },
 ]);

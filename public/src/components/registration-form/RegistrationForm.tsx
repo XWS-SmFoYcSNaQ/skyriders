@@ -3,7 +3,7 @@ import { useState } from "react"
 import { User } from "../../model/user"
 import classes from './RegistrationForm.module.css';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DateTimePicker, DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import React from "react"
 
 interface Props {
