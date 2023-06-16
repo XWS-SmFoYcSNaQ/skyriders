@@ -3,7 +3,10 @@ package service
 import (
 	"Skyriders/model"
 	"Skyriders/repo"
+	"Skyriders/utils"
+	"errors"
 	"log"
+	"math/rand"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -16,11 +19,14 @@ type UserService struct {
 
 func CreateUserService(l *log.Logger, r *repo.UserRepo) *UserService {
 	userService := &UserService{l, r}
-	userService.addAdmin()
+	_, err := userService.addAdmin()
+	if err != nil {
+		l.Println(err.Error())
+	}
 	return userService
 }
 
-func (service *UserService) addAdmin() {
+func (service *UserService) addAdmin() (bool, error) {
 	adminID, _ := primitive.ObjectIDFromHex("6425bd9edb1ff9554c5621da")
 	user := &model.User{
 		ID:       adminID,
@@ -33,7 +39,15 @@ func (service *UserService) addAdmin() {
 		},
 	}
 
-	_, _ = service.repo.Insert(user)
+	user, err := service.repo.GetById(user.ID.Hex())
+	if err != nil {
+		return false, err
+	}
+	if user != nil {
+		_, err = service.repo.Insert(user)
+		return true, nil
+	}
+	return false, errors.New("failed to add admin")
 }
 
 type CreateCustomerRequestParams struct {
@@ -67,10 +81,41 @@ func (service *UserService) Update(userId primitive.ObjectID, user model.User) e
 	return service.repo.Update(userId, user)
 }
 
-func (service *UserService) IsEmailExists(email string) bool {
+func (service *UserService) EmailExists(email string) bool {
 	user, _ := service.repo.GetByEmail(email)
 	if user != nil {
 		return true
 	}
 	return false
+}
+
+func (service *UserService) GenerateAPIKey(expiration *time.Time) (utils.APIKey, error) {
+	keyLength := 32
+	letterBytes := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	keyBytes := make([]byte, keyLength)
+	for i := range keyBytes {
+		keyBytes[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+
+	apiKeyString := string(keyBytes)
+	apiKey := utils.APIKey{
+		KeyString:  apiKeyString,
+		Expiration: expiration,
+	}
+
+	if expiration.IsZero() {
+		apiKey.Expiration = nil
+	}
+
+	return apiKey, nil
+}
+
+func (service *UserService) AuthorizeAPIKey(apiKey string) (*model.User, bool) {
+	user, err := service.repo.GetByAPI(apiKey)
+
+	if err != nil {
+		return nil, false
+	}
+	return user, true
 }

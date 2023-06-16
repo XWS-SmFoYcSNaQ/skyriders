@@ -3,6 +3,7 @@ package middleware
 import (
 	config2 "Skyriders/config"
 	"Skyriders/model"
+	"Skyriders/service"
 	"Skyriders/utils"
 	"fmt"
 	"github.com/casbin/casbin/v2"
@@ -66,5 +67,24 @@ func Anonymous() gin.HandlerFunc {
 			return
 		}
 		ctx.Next()
+	}
+}
+
+func AuthorizeTickets(method string, enforcer *casbin.Enforcer, userService *service.UserService) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		apiKey := ctx.Query("api_key")
+		if apiKey != "" {
+			if user, ok := userService.AuthorizeAPIKey(apiKey); ok {
+				ctx.Set("currentUser", user)
+				ctx.Next()
+				return
+			}
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Bad API Key"})
+			return
+		}
+		DeserializeUser(userService)(ctx)
+		if !ctx.IsAborted() {
+			Authorize("tickets", method, enforcer)(ctx)
+		}
 	}
 }

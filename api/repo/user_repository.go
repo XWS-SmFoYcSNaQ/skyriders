@@ -107,3 +107,20 @@ func (ur *UserRepo) getCollection() *mongo.Collection {
 	userDatabase := ur.db.Database()
 	return userDatabase.Collection("users")
 }
+
+func (ur *UserRepo) GetByAPI(apiKey string) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := ur.getCollection()
+
+	var user model.User
+	err := usersCollection.FindOne(ctx, bson.M{"customer.apikey.keyString": apiKey}).Decode(&user)
+
+	if err != nil {
+		ur.logger.Println(err.Error())
+		return nil, err
+	}
+
+	return &user, nil
+}

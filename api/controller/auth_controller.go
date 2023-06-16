@@ -49,7 +49,7 @@ func (ac *AuthController) Register(enforcer *casbin.Enforcer) gin.HandlerFunc {
 			return
 		}
 
-		if ac.service.IsEmailExists(credentials.Email) {
+		if ac.service.EmailExists(credentials.Email) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Email already exists"})
 			return
 		}

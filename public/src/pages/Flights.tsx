@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import axios, { AxiosError, HttpStatusCode } from "axios";
+import axios, { HttpStatusCode } from "axios";
 import FlightForm from "../components/flight-form/FlightForm";
 import FlightList from "../components/flight-list/FlightList";
 import { Box } from "@mui/system";

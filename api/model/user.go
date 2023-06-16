@@ -1,6 +1,7 @@
 package model
 
 import (
+	"Skyriders/utils"
 	"encoding/json"
 	"io"
 	"time"
@@ -56,6 +57,7 @@ type Customer struct {
 	Phone       string
 	Nationality string
 	Tickets     []CustomerTicket
+	APIKey      utils.APIKey
 }
 
 type Admin struct {
