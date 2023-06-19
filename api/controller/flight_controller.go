@@ -29,7 +29,7 @@ func (fc *FlightController) GetAllFlights(ctx *gin.Context) {
 	flights, err := fc.repo.GetAll(filters)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
 		fc.logger.Println("Unable to get flights:", err)
 	}
 
@@ -72,4 +72,18 @@ func (fc *FlightController) DeleteFlight(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusNoContent, gin.H{"status:": "success"})
+}
+
+func (fc *FlightController) GetFlightBySourceAndDestinationPlaceAndDateDestination(ctx *gin.Context) {
+	date := ctx.Query("date")
+	originLocation := ctx.Query("origin_location")
+	destinationLocation := ctx.Query("destination_location")
+
+	flights, err := fc.repo.GetBy(originLocation, destinationLocation, date)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Unable to get flights"})
+		fc.logger.Println("Unable to get flights:", err)
+	}
+
+	ctx.JSON(http.StatusOK, flights)
 }

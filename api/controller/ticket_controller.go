@@ -33,7 +33,7 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 	err := json.NewDecoder(ctx.Request.Body).Decode(&buyTicketRequest)
 	if err != nil {
 		controller.logger.Println(err.Error())
-		ctx.JSON(http.StatusBadRequest, "bad request")
+		ctx.JSON(http.StatusBadRequest, "bad request body")
 		return
 	}
 
@@ -51,7 +51,7 @@ func (controller *TicketController) BuyTickets(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, "Success")
+	ctx.Status(http.StatusCreated)
 }
 
 func (controller *TicketController) GetCustomerTickets(ctx *gin.Context) {
