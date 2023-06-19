@@ -26,4 +26,5 @@ func (fr *FlightRoute) FlightRoute(rg *gin.RouterGroup, authService *service.Use
 	router.DELETE("/:id", middleware.DeserializeUser(authService),
 		middleware.Authorize("flight", "DELETE", enforcer),
 		fr.flightController.DeleteFlight)
+	router.GET("/search", fr.flightController.GetFlightBySourceAndDestinationPlaceAndDateDestination)
 }

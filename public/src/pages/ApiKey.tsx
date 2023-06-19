@@ -1,9 +1,10 @@
-import { Button, Checkbox, Container, FormControlLabel } from "@mui/material";
+import { Box, Button, Checkbox, Container, FormControlLabel, Tooltip, Typography } from "@mui/material";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 interface APIKey {
   keyString: string;
@@ -47,8 +48,8 @@ const ApiKey = () => {
   }, []);
 
   const formattedDate = apiKey?.expiration
-  ? dayjs(apiKey.expiration).format('YYYY-MM-DD HH:mm')
-  : '';
+    ? dayjs(apiKey.expiration).format('YYYY-MM-DD HH:mm')
+    : '';
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -56,12 +57,21 @@ const ApiKey = () => {
         {apiKey ? (
           <div>
             <h2> Your API Key </h2>
-            <p> Key: { apiKey.keyString } </p>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography sx={{ marginRight: '0.5rem' }}>Key:</Typography>
+              <Typography>{apiKey.keyString}</Typography>
+              <Tooltip title="Copy to clipboard" placement="top">
+                <Button startIcon={<ContentCopyIcon />} onClick={() => {
+                  navigator.clipboard.writeText(apiKey.keyString);
+                }}>
+                </Button>
+              </Tooltip>
+            </Box>
             {apiKey?.expiration && (
-              <span style={{ opacity: 0.6 }}> (Valid until { formattedDate })</span>
+              <span style={{ opacity: 0.6 }}> (Valid until {formattedDate})</span>
             )}
             <div style={{ marginTop: '30px' }}>
-              <Button variant="contained" onClick={ revokeAPI }> Revoke API Key </Button>
+              <Button variant="contained" onClick={revokeAPI}> Revoke API Key </Button>
             </div>
           </div>
         ) : (

@@ -79,7 +79,7 @@ func AuthorizeTickets(method string, enforcer *casbin.Enforcer, userService *ser
 				ctx.Next()
 				return
 			}
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Bad API Key"})
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Bad API Key"})
 			return
 		}
 		DeserializeUser(userService)(ctx)
