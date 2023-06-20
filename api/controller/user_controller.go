@@ -67,7 +67,9 @@ func (uc *UserController) GenerateAPIKey(ctx *gin.Context) {
 	if err != nil {
 		uc.logger.Println(err.Error())
 	}
-
+	if user.Customer == nil {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "user is not a customer"})
+	}
 	user.Customer.APIKey = key
 
 	err = uc.service.Update(user.ID, *user)

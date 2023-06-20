@@ -39,12 +39,11 @@ func (service *UserService) addAdmin() (bool, error) {
 		},
 	}
 
-	user, err := service.repo.GetById(user.ID.Hex())
+	existingUser, err := service.repo.GetById(user.ID.Hex())
 	if err != nil {
-		return false, err
-	}
-	if user != nil {
-		_, err = service.repo.Insert(user)
+		if existingUser == nil {
+			_, err = service.repo.Insert(user)
+		}
 		return true, nil
 	}
 	return false, errors.New("failed to add admin")
